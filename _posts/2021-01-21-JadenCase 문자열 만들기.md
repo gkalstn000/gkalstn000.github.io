@@ -9,3 +9,11 @@ author: Haribo
 
 * content
 {:toc}
+# JadenCase 문자열 만들기
+
+```python
+def solution(s):
+    return ' '.join([word.capitalize() for word in s.split(" ")])
+```
+
+`capitalize` : 단어의 첫문자를 대문자로 바꿔주는 함수
