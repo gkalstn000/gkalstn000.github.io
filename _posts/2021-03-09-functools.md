@@ -63,7 +63,10 @@ def C(n,k): return comb(n,k)
 
 > 두 인자의 *function*을 왼쪽에서 오른쪽으로 *iterable*의 항목에 누적적으로 적용해서, 이터러블을 단일 값으로 줄입니다. 예를 들어, `reduce(lambda x, y: x+y, [1, 2, 3, 4, 5])`는 `((((1+2)+3)+4)+5)`를 계산합니다. 왼쪽 인자 *x*는 누적값이고 오른쪽 인자 *y*는 *iterable*에서 온 갱신 값입니다. 선택적 *initializer*가 있으면, 계산에서 이터러블의 항목 앞에 배치되고, 이터러블이 비어있을 때 기본값의 역할을 합니다. *initializer*가 제공되지 않고 *iterable*에 하나의 항목만 포함되면, 첫 번째 항목이 반환됩니다.
 
-`iterable`한 객체의 누적계산을 구하는 부분에서 `itertools.accumulate` 와 비슷하지만 `reduce`는 누적계산 함수를 원하는대로 지정할 수 있다.  
+`iterable`한 객체의 누적계산을 구하는 부분에서 `itertools.accumulate` 와 비슷하지만 `reduce`는 반환형태를 마음대로 할 수 있다. 마지막 누적계산 값을 원한다면 `reduce`를 쓰고, 누적 객체를 원한다면 `acumulate`를 쓰면 되겠다.
+
+* `itertools.accumulate` 는 인자로받은 `iterable` 객체에 누적합을 한 `iterable` 객체를 돌려줌
+* `functors.reduce` 는 정수값을 반환시킬 수도 있고, `iterable` 형태로 반환시킬수도있음
 
 실제 `reduce` 함수 코드
 
