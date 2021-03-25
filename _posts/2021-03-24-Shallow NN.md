@@ -246,10 +246,16 @@ model.fit(X, y)
 ```
 
 ```python
-model.predict(X)
+print(model.predict(X))
+print(model.predict(X))
+print(model.predict(X))
+print(model.predict(X))
 ```
 
 ```
+[0, 1, 1, 0]
+[0, 0, 1, 0]
+[0, 1, 1, 0]
 [0, 1, 1, 0]
 ```
 
