@@ -11,7 +11,7 @@ author: Haribo
 {:toc}
 ## Shallow NN with Logistic Regression
 
-`Neural Network`의 작동 원리를 알아보기위해 `Logistic Regression`에 **hidden layer**를 1층 추가해본다. 이 hidden layer를 추가함으로서 기존의 `Logistic Regression`으로 판별하지 못했던 `XOR` problem도 해결 할 수 있게된다. 그 이유는 hidden layer가 추가하게되면  **구별의 기준이 되는 hyper plane을 여러개를 사용하게 되서  이분법적인 classfication을 하지않고 더욱 많은 구별을 할 수 있게 된다.**
+`Neural Network`의 작동 원리를 알아보기위해 `Logistic Regression`에 **hidden layer**를 1층 추가해본다. 이 hidden layer를 추가함으로서 기존의 `Logistic Regression`으로 판별하지 못했던 `XOR` problem도 해결 할 수 있게된다. 그 이유는 hidden layer가 추가하게되면  **구별의 기준이 되는 hyper plane을 여러개를 사용하게 되서  이분법적인 예측을 하지않고 더욱 유연하게 예측을 할 수 있게 된다.**
 
 ![](/images/SNN/1.png)
 
