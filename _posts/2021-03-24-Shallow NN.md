@@ -159,9 +159,9 @@ $hidden\,layer$의 노드들이 각 예측 모델이기 때문에 $h$개의 각 
 >
 >  $\frac{\partial L(y,A^2)}{\partial b^2} = (A^2-y)$
 >
-> $\frac{\partial L(y,A^2)}{\partial W^1} = X(1-(A^1_{j})^2) W^1_j (A^2-y)$
+> $\frac{\partial L(y,A^2)}{\partial W^1} = X(1-(A^1_{j})^2) W^2 (A^2-y)$
 >
-> $\frac{\partial L(y,A^2)}{\partial b^1} = (1-(A^1_{j})^2) W^1_j (A^2-y)$
+> $\frac{\partial L(y,A^2)}{\partial b^1} = (1-(A^1_{j})^2) W^2 (A^2-y)$
 >
 > `j : 1, 2, ..., h`
 
