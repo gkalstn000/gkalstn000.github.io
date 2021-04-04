@@ -107,7 +107,8 @@ data_2018 = pd.read_csv('./NHIS_2017_2018_100m/NHIS_OPEN_GJ_2018_100.csv')
 df = pd.concat([data_2017,data_2018])
 ```
 
-## Drop features
+# Drop features
+
 필요없는 `feature`들을 삭제하고 결측치 분포를 보니 `'TOT_CHOLE', 'TRIGLYCERIDE', 'HDL_CHOLE', 'LDL_CHOLE'`의 결측치가 가장 많고, 또한 결측치가 서로 몰려있는 것을 확인할 수 있다.
 
 
