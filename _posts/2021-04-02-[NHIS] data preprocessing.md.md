@@ -9,6 +9,14 @@ author: Haribo
 ---
 * content
 {:toc}
+
+
+
+
+
+
+
+
 # feature decision
 
 ## Drop features
@@ -390,122 +398,35 @@ mapper = {11 : 'SEOUL',
           49 : 'JEJU',
           50 : 'FOREIGN'}
 df['SIDO'].replace(mapper, inplace=True)
-df[["SIDO", "BLDS"]].groupby(['SIDO'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
+df_ = df[["SIDO", "BLDS"]]
+df_['BLDS'] = np.where(df_['BLDS'] == 2, 1, df_['BLDS'])
+df_[["SIDO", "BLDS"]].groupby(['SIDO'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
 ```
 
 
 
 <div class="table-wrapper" markdown="block">
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
+| SIDO |     BLDS |          |
+| ---: | -------: | -------- |
+|   12 |       JN | 0.462556 |
+|   13 |  KWANGJU | 0.424325 |
+|    6 |  GANGWON | 0.403643 |
+|    0 |    BUSAN | 0.402681 |
+|    2 |       CN | 0.394814 |
+|   11 |       JB | 0.389559 |
+|    8 |       GN | 0.389298 |
+|    5 |  FOREIGN | 0.383460 |
+|    7 |       GB | 0.382897 |
+|   10 |  INCHEON | 0.378945 |
+|    4 |   DAJEON | 0.376976 |
+|    9 | GYEONGGI | 0.374150 |
+|    1 |       CB | 0.370957 |
+|   16 |    ULSAN | 0.365135 |
+|   15 |    SEOUL | 0.360828 |
+|    3 |     DAGU | 0.354118 |
+|   14 |   SEJONG | 0.349973 |
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-    
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>SIDO</th>
-      <th>BLDS</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>12</th>
-      <td>JN</td>
-      <td>0.567383</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>KWANGJU</td>
-      <td>0.503593</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>GANGWON</td>
-      <td>0.491400</td>
-    </tr>
-    <tr>
-      <th>0</th>
-      <td>BUSAN</td>
-      <td>0.486423</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>JB</td>
-      <td>0.476529</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>CN</td>
-      <td>0.476058</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>GN</td>
-      <td>0.466652</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>GB</td>
-      <td>0.464439</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>FOREIGN</td>
-      <td>0.460401</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>INCHEON</td>
-      <td>0.460256</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>DAJEON</td>
-      <td>0.453052</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>CB</td>
-      <td>0.451514</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>GYEONGGI</td>
-      <td>0.449345</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>ULSAN</td>
-      <td>0.435314</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>SEOUL</td>
-      <td>0.432545</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>DAGU</td>
-      <td>0.426531</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>SEJONG</td>
-      <td>0.412095</td>
-    </tr>
-  </tbody>
-</table>
 </div>
 
 
@@ -786,10 +707,10 @@ df = pd.get_dummies(df, drop_first=True)
 ```python
 mapper = {1: 'Normal', 2 : 'DEAF'}
 df['HEAR_LEFT'].replace(mapper, inplace=True)
-df[["HEAR_LEFT", "BLDS"]].groupby(['HEAR_LEFT'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
+df_ = df[["HEAR_LEFT", "BLDS"]]
+df_['BLDS'] = np.where(df_['BLDS'] == 2, 1, df_['BLDS'])
+df_[["HEAR_LEFT", "BLDS"]].groupby(['HEAR_LEFT'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
 ```
-
-
 
 <div class="table-wrapper" markdown="block">
 <style scoped>
@@ -818,18 +739,24 @@ df[["HEAR_LEFT", "BLDS"]].groupby(['HEAR_LEFT'], as_index=False).mean().sort_val
     <tr>
       <th>0</th>
       <td>DEAF</td>
-      <td>0.631603</td>
+      <td>0.499736</td>
     </tr>
     <tr>
       <th>1</th>
       <td>Normal</td>
-      <td>0.453704</td>
+      <td>0.377315</td>
     </tr>
   </tbody>
 </table>
+
 </div>
 
-
+```python
+normal_case = (df['BLDS'] == 1) & (df['HEAR_LEFT'].isnull()) # fill 0
+deaf_case = (df['BLDS'] == 0) & (df['HEAR_LEFT'].isnull()) # fill 1
+df.loc[normal_case,'HEAR_LEFT'] = df.loc[normal_case,'HEAR_LEFT'].fillna('Normal')
+df.loc[deaf_case,'HEAR_LEFT'] = df.loc[deaf_case,'HEAR_LEFT'].fillna('DEAF')
+```
 
 
 ```python
@@ -927,7 +854,9 @@ df = pd.get_dummies(df, drop_first=True)
 ```python
 mapper = {1: 'Normal', 2 : 'DEAF'}
 df['HEAR_RIGHT'].replace(mapper, inplace=True)
-df[["HEAR_RIGHT", "BLDS"]].groupby(['HEAR_RIGHT'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
+df_ = df[["HEAR_RIGHT", "BLDS"]]
+df_['BLDS'] = np.where(df_['BLDS'] == 2, 1, df_['BLDS'])
+df_[["HEAR_RIGHT", "BLDS"]].groupby(['HEAR_RIGHT'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
 ```
 
 
@@ -960,15 +889,16 @@ df[["HEAR_RIGHT", "BLDS"]].groupby(['HEAR_RIGHT'], as_index=False).mean().sort_v
     <tr>
       <th>0</th>
       <td>DEAF</td>
-      <td>0.632988</td>
+      <td>0.501281</td>
     </tr>
     <tr>
       <th>1</th>
       <td>Normal</td>
-      <td>0.453874</td>
+      <td>0.377412</td>
     </tr>
   </tbody>
 </table>
+
 </div>
 
 
@@ -1077,7 +1007,9 @@ df = pd.get_dummies(df, drop_first=True)
 ```python
 mapper = {1: 'No', 2 : 'No', 3: 'Yes'}
 df['SMK_STAT_TYPE_CD'].replace(mapper, inplace=True)
-df[["SMK_STAT_TYPE_CD", "BLDS"]].groupby(['SMK_STAT_TYPE_CD'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
+df_ = df[["SMK_STAT_TYPE_CD", "BLDS"]]
+df_['BLDS'] = np.where(df_['BLDS'] == 2, 1, df_['BLDS'])
+df_[["SMK_STAT_TYPE_CD", "BLDS"]].groupby(['SMK_STAT_TYPE_CD'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
 ```
 
 
@@ -1109,15 +1041,16 @@ df[["SMK_STAT_TYPE_CD", "BLDS"]].groupby(['SMK_STAT_TYPE_CD'], as_index=False).m
     <tr>
       <th>1</th>
       <td>Yes</td>
-      <td>0.523379</td>
+      <td>0.428212</td>
     </tr>
     <tr>
       <th>0</th>
       <td>No</td>
-      <td>0.441921</td>
+      <td>0.368393</td>
     </tr>
   </tbody>
 </table>
+
 </div>
 
 
@@ -1224,7 +1157,9 @@ df = pd.get_dummies(df, drop_first=True)
 ```python
 mapper = {1: 'Yes', 0 : 'No'}
 df['DRK_YN'].replace(mapper, inplace=True)
-df[["DRK_YN", "BLDS"]].groupby(['DRK_YN'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
+df_ = df[["DRK_YN", "BLDS"]]
+df_['BLDS'] = np.where(df_['BLDS'] == 2, 1, df_['BLDS'])
+df_[["DRK_YN", "BLDS"]].groupby(['DRK_YN'], as_index=False).mean().sort_values(by='BLDS', ascending=False)
 ```
 
 
@@ -1256,15 +1191,16 @@ df[["DRK_YN", "BLDS"]].groupby(['DRK_YN'], as_index=False).mean().sort_values(by
     <tr>
       <th>1</th>
       <td>Yes</td>
-      <td>0.461851</td>
+      <td>0.387572</td>
     </tr>
     <tr>
       <th>0</th>
       <td>No</td>
-      <td>0.438254</td>
+      <td>0.359463</td>
     </tr>
   </tbody>
 </table>
+
 </div>
 
 
@@ -1364,11 +1300,30 @@ df = pd.get_dummies(df, drop_first=True)
 
 # Numercial features
 결측치, 이상치를 적절히 전처리해준다.
-AGE_GROUP, HEIGHT, WEIGHT, BMI, WAIST, SIGHT_LEFT, SIGHT_RIGHT, OLIG_PROTE_CD, BP_HIGH, BP_LWST, TOT_CHOLE, TRIGLYCERIDE, HDL_CHOLE, LDL_CHOLE, HMG, CREATININE, SGOT_AST, SGPT_ALT, GAMMA_GTP
+
+* `AGE_GROUP`
+* `HEIGHT`
+* `WEIGHT`
+* `BMI`
+* `WAIST`
+* `SIGHT_LEFT`
+* `SIGHT_RIGHT`
+* `OLIG_PROTE_CD`
+* `BP_HIGH`
+* `BP_LWST`
+* `TOT_CHOLE`
+* `TRIGLYCERIDE`
+* `HDL_CHOLE`
+* `LDL_CHOLE`
+* `HMG`
+* `CREATININE`
+* `SGOT_AST`
+* `SGPT_ALT`
+* `GAMMA_GTP`
 
 ## AGE_GROUP
-Discrete Numercial type  
-결측치, 이상치는 없다
+> Discrete Numercial type  
+> 결측치, 이상치는 없다
 
 
 ```python
@@ -1384,8 +1339,8 @@ plt.show()
 
 
 ## HEIGHT
-Discrete Numercial type  
-결측치, 이상치는 없다
+> Discrete Numercial type  
+> 결측치, 이상치는 없다
 
 
 ```python
@@ -1401,8 +1356,8 @@ plt.show()
 
 
 ## WEIGHT
-Discrete Numercial type  
-결측치, 이상치는 없다
+> Discrete Numercial type  
+> 결측치, 이상치는 없다
 
 
 ```python
@@ -1418,11 +1373,11 @@ plt.show()
 
 
 ## BMI(체질량지수)
-Continuous Numercial type
-```
-df['WEIGHT'] / (df['HEIGHT']/100)**2
-```
-새로운 feature를 생성해준다.
+> Feature Create
+>
+> Continuous Numercial type
+>
+> `df['WEIGHT'] / (df['HEIGHT']/100)**2`
 
 
 ```python
@@ -1442,16 +1397,18 @@ plt.show()
 
 
 ## PIBW(체질량지수)
-Continous Numercial type  
-표준 체중과 비교해 얼마나 차이가 나는지 확인하는 지표
-* (0, 90%) : 저체중
-* (90%, 110%) : 정상체중
-* (110%, 120%) : 과체중
-* (120%,~) : 비만
-
-PIBW = 100 * 측정체중 / 표준체중 
-
-
+> Feature Create
+>
+> Continous Numercial type 
+>
+> 표준 체중과 비교해 얼마나 차이가 나는지 확인하는 지표
+>
+> * (0, 90%) : 저체중
+> * (90%, 110%) : 정상체중
+> * (110%, 120%) : 과체중
+> * (120%,~) : 비만
+>
+> `PIBW = 100 * 측정체중 / 표준체중 `
 
 ```python
 df['PIBW'] = np.where(df['SEX_male'] == 1, (100*df['WEIGHT'])/(22*(df['HEIGHT']/100)**2), (100*df['WEIGHT'])/(21*(df['HEIGHT']/100)**2))
@@ -1470,12 +1427,17 @@ plt.show()
 
 
 ## WAIST
-Continous Numercial type  
-결측치(394)와 양측에 이상치가 존재한다.  
-허리둘레가 999cm 인사람 58명  
-허리둘레가 45cm가 안되는 사람 15명  
-허리둘레 45cm면 웬만한 마른 아이돌 허리둘레보다 얇은 길이인데 이보다 훨씬 얇은 사람들이 있다.
-> 이상치 및 결측치를 ['HEIGHT', 'WEIGHT', 'BMI', 'PIBW']를 이용해 Linear Regression으로 채워준다.
+> Continous Numercial type 
+>
+> 결측치(394)와 양측에 이상치가 존재한다. 
+>
+> 허리둘레가 999cm 인사람 58명 
+>
+> 허리둘레가 45cm가 안되는 사람 15명 
+>
+> 허리둘레 45cm면 웬만한 마른 아이돌 허리둘레보다 얇은 길이인데 이보다 훨씬 얇은 사람들이 있다.
+>
+> **이상치 및 결측치를 ['HEIGHT', 'WEIGHT', 'BMI', 'PIBW']를 이용해 Linear Regression으로 채워준다.**
 
 
 ```python
@@ -1567,9 +1529,9 @@ df.drop(drop_cols, axis = 1, inplace = True)
 ```
 
 ## SIGHT_LEFT
-Discrete Numercial type  
-이상치는 없지만 실명(9.9)을 0으로 바꾸어준다.  
-결측치(273)은 수가 적으니 평균시력(1)로 채워준다.  
+> Discrete Numercial type  
+> 이상치는 없지만 실명(9.9)을 0으로 바꾸어준다.  
+> 결측치(273)은 수가 적으니 평균시력(1)로 채워준다.  
 
 
 ```python
@@ -1596,9 +1558,9 @@ df['SIGHT_LEFT'].fillna(1, inplace = True)
 ```
 
 ## SIGHT_RIGHT
-Discrete Numercial type  
-이상치는 없지만 실명(9.9)을 0으로 바꾸어준다.  
-결측치(283)은 수가 적으니 평균시력(1)로 채워준다.  
+> Discrete Numercial type  
+> 이상치는 없지만 실명(9.9)을 0으로 바꾸어준다.  
+> 결측치(283)은 수가 적으니 평균시력(1)로 채워준다.  
 
 
 ```python
@@ -1625,12 +1587,13 @@ df['SIGHT_RIGHT'].fillna(1, inplace = True)
 ```
 
 ## OLIG_PROTE_CD
-Discrete Numercial type  
-결측치(7009)  
-데이터상으로 요단백수치와 당뇨는 관계가 없다. 
-* 요단백수치 2이상인 사람중 당뇨 유병률 : 5%
-
-멱분포를 따르는것같다. 압도적으로 1이 많기 때문에 결측치 7009개를 1로 채워준다
+> Discrete Numercial type  
+> 결측치(7009)  
+> 데이터상으로 요단백수치와 당뇨는 관계가 없다. 
+>
+> * 요단백수치 2이상인 사람중 당뇨 유병률 : 5%
+>
+> 멱분포를 따르는것같다. 압도적으로 1이 많기 때문에 결측치 7009개를 1로 채워준다
 
 
 ```python
@@ -1652,16 +1615,15 @@ df['OLIG_PROTE_CD'].fillna(1, inplace = True)
 
 ## BP_HIGH
 
-Continous Numercial type
-결측치(25)수가 적으므로 drop 해준다.  
-수축기 혈압이 10의 배수인 부근에 값이 몰려있는것을 발견할 수 있는데 이는 혈압 측정자가 반올림을 하여 10단위 구간에 값들이 몰려있는것 같다.
-* 0 ~ 99 : 저혈압(-1)
-* 100~120 : 정상(0)
-* 121~139 : 전고혈압(1)
-* 140~159 : 1단계 고혈압(2)
-* 160 ~   : 2단계 고혈압(3)
-
-으로 맵핑해준다.
+> Continous Numercial type
+> 결측치(25)수가 적으므로 drop 해준다.  
+> 수축기 혈압이 10의 배수인 부근에 값이 몰려있는것을 발견할 수 있는데 이는 혈압 측정자가 반올림을 하여 10단위 구간에 값들이 몰려있는것 같다.
+>
+> * 0 ~ 99 : 저혈압(-1)
+> * 100~120 : 정상(0)
+> * 121~139 : 전고혈압(1)
+> * 140~159 : 1단계 고혈압(2)
+> * 160 ~   : 2단계 고혈압(3)
 
 
 ```python
@@ -1703,16 +1665,15 @@ plt.show()
 
 
 ## BP_LWST
-Continous Numercial type
-결측치(1)수가 적으므로 drop 해준다.  
-이완기 혈압이 10의 배수인 부근에 값이 몰려있는것을 발견할 수 있는데 이는 혈압 측정자가 반올림을 하여 10단위 구간에 값들이 몰려있는것 같다.
-* 0 ~ 59 : 저혈압(-1)
-* 60~80 : 정상(0)
-* 81~89 : 전고혈압(1)
-* 90~99 : 1단계 고혈압(2)
-* 100 ~   : 2단계 고혈압(3)
-
-으로 맵핑해준다.
+> Continous Numercial type
+> 결측치(1)수가 적으므로 drop 해준다.  
+> 이완기 혈압이 10의 배수인 부근에 값이 몰려있는것을 발견할 수 있는데 이는 혈압 측정자가 반올림을 하여 10단위 구간에 값들이 몰려있는것 같다.
+>
+> * 0 ~ 59 : 저혈압(-1)
+> * 60~80 : 정상(0)
+> * 81~89 : 전고혈압(1)
+> * 90~99 : 1단계 고혈압(2)
+> * 100 ~   : 2단계 고혈압(3)
 
 
 ```python
@@ -1728,9 +1689,6 @@ plt.show()
 
 
 ![png](/images/nhis_p/output_81_0.png)
-    
-
-
 
 ```python
 df['BP_LWST_level'] = np.where(100 <= df['BP_LWST'], 3, df['BP_LWST'])
@@ -1754,9 +1712,9 @@ plt.show()
 
 
 ## HMG
-Continous Numercial type  
-결측치(24)수가 적으므로 drop 해준다.  
-정규분포를 띄지만 약간의 이상치가 존재한다.
+> Continous Numercial type  
+> 결측치(24)수가 적으므로 drop 해준다.  
+> 정규분포를 띄지만 약간의 이상치가 존재한다.
 
 
 ```python
@@ -1791,12 +1749,12 @@ sns.boxplot(data=df, x='HMG')
 ![png](/images/nhis_p/output_87_1.png)
     
 
-
 # 이상치처리가 필요한 features
-* CREATININE
-* SGOT_AST
-* SGPT_ALT
-* GAMMA_GTP
+
+> * CREATININE
+> * SGOT_AST
+> * SGPT_ALT
+> * GAMMA_GTP
 
 4개의 feature들은 모두 공통적으로 극단적인 큰값들이 분포해있는것으로 보아 잘못기입되거나, 오류가아닌 실제로 건강이 안좋아서 나온 수치들로 보여진다. 하지만 이렇게 극단적인 값들을 그대로 가지고 training 시켰을 때, 결과물이 outlier에 의해 치우져질 가능성이 매우크기 때문에 outlier처리를 해야한다.
 
@@ -1852,11 +1810,6 @@ print('전체 이상치 개수 :', len(outlier) - len(outlier.dropna()))
     전체 이상치 개수 : 250811
 
 
-> 1행 : 기존 데이터 분포  
-> 2행 : 이상치 제거한 데이터 분포  
-> 3행 : 이상치 제거한 boxplot
-
-
 ```python
 fig, axes = plt.subplots(nrows = 3, ncols=4, figsize=(18, 12))
 for i, col in enumerate(outlier) :
@@ -1875,15 +1828,15 @@ fig.tight_layout()
 plt.show()
 ```
 
-
 ![png](/images/nhis_p/output_93_0.png)
-    
 
-
+> 1행 : 기존 데이터 분포  
+> 2행 : 이상치 제거한 데이터 분포  
+> 3행 : 이상치 제거한 boxplot
 
 ```python
+# delete outlier
 outlier = ['CREATININE', 'SGOT_AST', 'SGPT_ALT', 'GAMMA_GTP']
-
 for col in outlier :
   q1 = df[col].quantile(0.25)
   q3 = df[col].quantile(0.75)
@@ -2033,11 +1986,11 @@ fig.tight_layout()
 plt.show()
 ```
 
-
 ![png](/images/nhis_p/output_99_0.png)
-    
 
-
+> 1행 : 기존 데이터 분포  
+> 2행 : 이상치 제거한 데이터 분포  
+> 3행 : 이상치 제거한 boxplot
 
 ```python
 # 이상치 제거
@@ -2079,7 +2032,7 @@ sns.heatmap(corrMatt, mask=mask,vmax=.8, square=True,annot=True, ax = ax)
     
 
 
-## Regression 으로 결측치 채우기
+## Fill Nan by Regression 
 Linear Regression 모델링을 통해 결측치를 채워본다.
 
 
@@ -2174,25 +2127,17 @@ plt.show()
 ```
 
 
-​    
 ![png](/images/nhis_p/output_110_0.png)
-​    
-
-
 
 ```python
 df.describe()
 ```
-
-
 
 <div class="table-wrapper" markdown="block">
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
-
-
     .dataframe tbody tr th {
         vertical-align: top;
     }
@@ -2645,17 +2590,19 @@ df.shape
 
     (937975, 46)
 
-
+---
 
 # 이상치, 결측치 처리완료
-데이터 변화 : `2000000 x 34` -> `937975 x 46`
+> 데이터 변화 : `2000000 x 34` -> `937975 x 46`
+
+---
 
 # Feature Create
 
 
 ## ABD_FAT
-복부비만 수치이다.  
-허리둘레가 남자 90, 여자 85이상이면 복부비만(1), 정상(0)으로 해준다.
+> 복부비만 수치  
+> 허리둘레가 남자 90, 여자 85이상이면 복부비만(1), 정상(0)으로 해준다.
 
 
 ```python
@@ -2664,9 +2611,10 @@ df['ABD_FAT'] = np.where(fat, 1, 0)
 ```
 
 ## GAMMA_GTP_level
-* `2 if GAMMA_GTP >= 200` 위험, but **GAMMA_GTP.max = 81**
-* `1 if (GAMMA_GTP > 63 and SEX_male == 1) or (GAMMA_GTP > 35 and SEX_male == 0)` 경고
-* `0` 정상
+
+> * `2 if GAMMA_GTP >= 200` 위험, but **GAMMA_GTP.max = 81**
+> * `1 if (GAMMA_GTP > 63 and SEX_male == 1) or (GAMMA_GTP > 35 and SEX_male == 0)` 경고
+> * `0` 정상
 
 
 ```python
