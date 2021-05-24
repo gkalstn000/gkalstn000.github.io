@@ -43,6 +43,8 @@ author: Haribo
 
 **model** 폴더는 학습이 끝난 네트워크 모델이 저장될 폴더이고, **runs**는 tensorboard 데이터값을 위한 폴더이다. 
 
+---
+
 # import 
 
 필요한 모듈 및 함수들 
@@ -83,6 +85,8 @@ def clear_gpu() :
     gc.collect()
 ```
 
+---
+
 # Data Load
 
 ```python
@@ -112,6 +116,8 @@ valid_ds = ImageFolder(test_dir, transform=transforms, target_transform=None)
 
 위 그림은 숫자 2에대한 데이터를 *Normalization* 전, 후를 비교하는 이미지다. 이 프로젝트의 목표는 어떠한 숫자 이미지가 들어와도 예측하는 것이기 때문에 *Normalization*을 적용시킨 이미지를 trainning 하도록 했다.
 
+---
+
 # GPU 
 
 ```python
@@ -125,6 +131,8 @@ True
 ```
 
 GPU 사용을 위해 정의 해준다. 
+
+---
 
 # Network
 
@@ -196,9 +204,13 @@ MNIST 이미지는 작은 사이즈의 이미지 이기 때문에 굳이 크고 
 >
 > 총 파라미터 개수 : *287008*
 
+---
+
 # Prepare Trainning
 
 구현하는데 시간이 가장 많이 들었던 구간이다. *Tensorboard* 시각화와, loss 시각화를 때문에 코드가 조금 지저분해졌지만 훈련과정을 직접 확인하고 볼 수 있어서 구현하고 매우 뿌듯함이 컸었다.
+
+---
 
 ## Early Stopping
 
@@ -254,6 +266,8 @@ class EarlyStopping:
 ```
 
 **정말 필수 중에 필수 중에 필수적인 기능이다.** 시간단축 및 model을 자동으로 저장하고, 최신화하고, 불러와주는 역할을 해준다.
+
+---
 
 ## fit
 
@@ -335,6 +349,8 @@ def fit(epochs, model, loss_func, opt, scheduler, train_dl, valid_dl, path):
 
 로 설정을 했는데, 그 이유는 *valid loss* 가 4 epoch 동안 개선되지 않으면 `scheduler`를 통해 *learning rate* 를 `1/10` 만큼 감소시킨 뒤, 4번의 기회를 더 주고 그 안에 *valid loss*가 개선되지 않으면 stop을 하도록 하기 위해서 *patient* 의 차이가 4가 되도록 설정했다. 
 
+---
+
 ## Data process
 
 ```python
@@ -363,6 +379,8 @@ class WrappedDataLoader:
 ```
 
 위에서 정의한 `train_ds`와 `valid_ds`을 *batch_size*만큼씩 꺼내며 *GPU* 로 설정해주는 함수다.
+
+---
 
 ## Visualization
 
@@ -404,6 +422,8 @@ def loss_graph(train_loss, valid_loss) :
 
 시각화 및 성능 테스트를 하기위한 함수들
 
+---
+
 ## Tensorboard
 
 [pytorch tensorboard 설정 방법](https://tutorials.pytorch.kr/intermediate/tensorboard_tutorial.html)
@@ -423,6 +443,8 @@ tensorboard --logdir=runs
 명령어를 친 뒤 [텐서보드](http://localhost:6006/) 를 켜서 확인
 
 ![](/images/3dmnist/tensorboard.png)
+
+---
 
 ## Hyper Parameters
 
@@ -445,6 +467,8 @@ valid_dl = WrappedDataLoader(valid_dl, preprocess)
 ```
 
 *grid search*를 위해 각 *hyperparameter*들을 리스트로 설정한다.
+
+---
 
 # Trainning
 
@@ -483,11 +507,15 @@ for lr, keep_prob, weight_decay in product(lrs, keep_probs, weight_decays) :
 
 ![best set](/images/3dmnist/modelHyperParams-0.001_0.85_0.005-loss_plot.png) 
 
+---
+
 # weight_decay vs dropout
 
 둘의 실질적인 차이가 궁금했지만 교수님께 여쭈어봐도 모른다고 하셔서 일단 묻어두고 있었는데 이번 프로젝트를 통해 둘의 차이점을 대충 알아낸것같다.  
 
 수학적으로만 본다면 ***Weight_decay*는 목소리가 큰 사람의 목소리 작게 만드는 것**이고, ***Dropout*은 목소리가 작은 사람의 목소리를 잘 들을 수 있도록 집중해서 보는것**으로 볼 수 있다. 하지만 *weight_decay*는 전체 네트워크에 영향을 끼치는 파라미터고, *Dropout*은 Fully connected layer에만 영향을 미치기 때문에 일단 네트워크 전체가 *FC layer*가 아닌이상 영향력의 차이가 있음은 알 수 있다.
+
+---
 
 ## weight decay penalty
 
@@ -496,6 +524,8 @@ for lr, keep_prob, weight_decay in product(lrs, keep_probs, weight_decays) :
 `weight_decay`를 낮게 잡은 경우 Loss 곡선이 마치 사이클로이드 모양으로 빠르게 감소되며 학습이 잘되지만, overfitting 구간에서 valid Loss가 매우 가파르게 증가하고 train Loss는 매우 가파르게 감소한다.
 
 `weight_decay`를 높게 잡은 경우 Loss 곡선이 계단모양으로 느리지만 이쁘게 감소되는데 학습이 잘 안되고, overfitting구간에서 valid Loss가 미세하게 증가하며 train Loss또한 미세하게 감소한다.
+
+---
 
 ## dropout penalty
 
@@ -511,6 +541,8 @@ for lr, keep_prob, weight_decay in product(lrs, keep_probs, weight_decays) :
 
 > 전체적은 Loss값은 weight_decay를 통해 조절해 주고, overfitting이 시작되는 부분에대한 tunning은 keep_prob를 통해 조절해 주는게 가장 Best였다.
 
+---
+
 # 오답 확인
 
 모델이 잘 못맞추는 케이스를 확인하기 위해 오답 이미지를 출력해보았다.
@@ -525,6 +557,8 @@ for lr, keep_prob, weight_decay in product(lrs, keep_probs, weight_decays) :
 >   * Translation equvariance 가 필요함. 하지만 모델의 한계라 어쩔 수 없음.
 > * 이미지 특징추출이 부족함.
 >   * 아래그림의 2번째 경우.
+
+---
 
 ## Class weight
 
