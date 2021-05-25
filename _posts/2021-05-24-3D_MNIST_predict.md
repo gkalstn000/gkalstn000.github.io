@@ -9,8 +9,6 @@ author: Haribo
 ---
 * content
 {:toc}
-* content
-{:toc}
 
 
 기존의 1차원 MNIST 데이터를 3차원 rgb 채널로 확장 시킨뒤 vgg network를 이용해 예측을 시도한다.
@@ -36,18 +34,18 @@ author: Haribo
    . . .
    |-- model/
    |-- runs/
-	
+
 ```
 
 디렉토리 구조는 root디렉토리 밑에 다운받은 **image** 폴더, 그리고 **model**, **runs** 를 만들어 준다.  
 
-**model** 폴더는 학습이 끝난 네트워크 모델이 저장될 폴더이고, **runs**는 tensorboard 데이터값을 위한 폴더이다. 
+**model** 폴더는 학습이 끝난 네트워크 모델이 저장될 폴더이고, **runs**는 tensorboard 데이터값을 위한 폴더이다.
 
 ---
 
-# import 
+# import
 
-필요한 모듈 및 함수들 
+필요한 모듈 및 함수들
 
 ```python
 import pandas as pd
@@ -63,7 +61,7 @@ import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 
 # visualization
-from tqdm import notebook 
+from tqdm import notebook
 from matplotlib.legend_handler import HandlerLine2D
 import matplotlib.pyplot as plt
 %matplotlib inline
@@ -95,7 +93,7 @@ transform = transforms.Compose([transforms.ToTensor(),
                             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 ```
 
-데이터셋을 불러오며 *augmentation* 시켜주는 `transform`을 정의한다. `Compose` 함수 인자로 다른 여러가지 *augmentation* 방법이 있으니 관심있으면 [참고](https://green-late7.tistory.com/56)하길 바란다. 
+데이터셋을 불러오며 *augmentation* 시켜주는 `transform`을 정의한다. `Compose` 함수 인자로 다른 여러가지 *augmentation* 방법이 있으니 관심있으면 [참고](https://green-late7.tistory.com/56)하길 바란다.
 
 > `transforms.ToTensor()` : `28x28x3` 이미지를 `3x28x28`로 transform 해줌
 >
@@ -118,7 +116,7 @@ valid_ds = ImageFolder(test_dir, transform=transforms, target_transform=None)
 
 ---
 
-# GPU 
+# GPU
 
 ```python
 print(torch.cuda.is_available())
@@ -130,7 +128,7 @@ dev = torch.device(
 True
 ```
 
-GPU 사용을 위해 정의 해준다. 
+GPU 사용을 위해 정의 해준다.
 
 ---
 
@@ -169,7 +167,7 @@ class MyModule(nn.Module):
         super(MyModule, self).__init__()
         # Conv blocks (BatchNorm + ReLU activation added in each block)
         channels = [32, 64, 128]
-        
+
         self.layer1 = vgg_conv_block([3,channels[0]], [channels[0],channels[0]], [3,3], [0,0], 2, 2)
         self.layer2 = vgg_conv_block([channels[0],channels[1]], [channels[1],channels[1]], [3,3], [0,0], 2, 2)
         self.layer3 = vgg_conv_block([channels[1],channels[2]], [channels[2],channels[2]], [3,3], [1,0], 2, 2)
@@ -195,7 +193,7 @@ class MyModule(nn.Module):
 
 ![normalization](/images/3dmnist/network.png)
 
-MNIST 이미지는 작은 사이즈의 이미지 이기 때문에 굳이 크고 깊은 네트워크를 구축할 필요가 없기 때문에 *3-layer VGG Network*를 구현했다. 
+MNIST 이미지는 작은 사이즈의 이미지 이기 때문에 굳이 크고 깊은 네트워크를 구축할 필요가 없기 때문에 *3-layer VGG Network*를 구현했다.
 
 > **Model Hyper parameter**
 >
@@ -292,15 +290,15 @@ def loss_batch(model, loss_func, xb, yb, opt=None):
         opt.zero_grad()
         out.append(opt.param_groups[0]['lr'])
     out.append(loss.item())
-    return out 
+    return out
 def fit(epochs, model, loss_func, opt, scheduler, train_dl, valid_dl, path):
     start = time.time()
     train_loss = []
     valid_loss = []
-    
+
     # earlystopping
     early_stopping = EarlyStopping(patience = 8, verbose = True, delta=0.0001, path = path+'_checkpoint.pt')
-    
+
     # tqdm을 이용해 반복문 과정을 시각화 해준다.
     for epoch in notebook.tqdm(range(epochs), desc = 'Epoch'):
         model.train()
@@ -313,7 +311,7 @@ def fit(epochs, model, loss_func, opt, scheduler, train_dl, valid_dl, path):
         # train 결과물 write to tensorboard
         writer.add_scalar('{}/Loss/train'.format(path), avg_loss, epoch)
         writer.add_scalar('{}/learning_rate'.format(path), lr, epoch)
-        
+
         model.eval()
         loss = []
         with torch.no_grad() :
@@ -324,7 +322,7 @@ def fit(epochs, model, loss_func, opt, scheduler, train_dl, valid_dl, path):
         valid_loss.append(avg_loss)
         # valid 결과물 write to tensorboard
         writer.add_scalar('{}/Loss/valid'.format(path), avg_loss, epoch)
-        
+
         # scheduler 및 earlystopping
         scheduler.step(avg_loss)
         early_stopping(avg_loss, model)
@@ -332,7 +330,7 @@ def fit(epochs, model, loss_func, opt, scheduler, train_dl, valid_dl, path):
         if early_stopping.early_stop:
             print("Early stopping")
             break
-            
+
     print("cost time :", time.time() - start)      
     writer.flush()
     model.load_state_dict(torch.load('model/'+path+'_checkpoint.pt'))
@@ -341,13 +339,13 @@ def fit(epochs, model, loss_func, opt, scheduler, train_dl, valid_dl, path):
 
 `optimizer`는 가장 무난하다고 알려진 `adam`을 사용했다.  
 
-`early_stopping`과 `scheduler`는 한 세트나 다름없다. 각 함수의 *patient*를 보면 
+`early_stopping`과 `scheduler`는 한 세트나 다름없다. 각 함수의 *patient*를 보면
 
 > `early_stopping.patient = 8`
 >
 > `scheduler.patient = 4`
 
-로 설정을 했는데, 그 이유는 *valid loss* 가 4 epoch 동안 개선되지 않으면 `scheduler`를 통해 *learning rate* 를 `1/10` 만큼 감소시킨 뒤, 4번의 기회를 더 주고 그 안에 *valid loss*가 개선되지 않으면 stop을 하도록 하기 위해서 *patient* 의 차이가 4가 되도록 설정했다. 
+로 설정을 했는데, 그 이유는 *valid loss* 가 4 epoch 동안 개선되지 않으면 `scheduler`를 통해 *learning rate* 를 `1/10` 만큼 감소시킨 뒤, 4번의 기회를 더 주고 그 안에 *valid loss*가 개선되지 않으면 stop을 하도록 하기 위해서 *patient* 의 차이가 4가 되도록 설정했다.
 
 ---
 
@@ -416,7 +414,7 @@ def loss_graph(train_loss, valid_loss) :
     plt.tight_layout()
     plt.show()
     fig.savefig('model'+path+'-loss_plot.png', bbox_inches = 'tight')
-        
+
     print('lr : {}, keep_prob : {}, weight_decay : {}, layer : {}'.format(lr, keep_prob, weight_decay, layer))
 ```
 
@@ -434,7 +432,7 @@ writer = SummaryWriter('runs/3D_MNIST')
 
 `writer`의 위치에 각 학습 과정 결과물을 저장하도록 한다.  
 
-루트 디렉토리에서 터미널에 
+루트 디렉토리에서 터미널에
 
 ```
 tensorboard --logdir=runs
@@ -500,12 +498,12 @@ for lr, keep_prob, weight_decay in product(lrs, keep_probs, weight_decays) :
 > lr = 0.001
 > keep_prob = 0.85
 > weight_decay = 0.005
-> 
+>
 > train Acc : 93.42%
 > valid Acc : 90.01%
 > ```
 
-![best set](/images/3dmnist/modelHyperParams-0.001_0.85_0.005-loss_plot.png) 
+![best set](/images/3dmnist/modelHyperParams-0.001_0.85_0.005-loss_plot.png)
 
 ---
 
@@ -562,9 +560,8 @@ for lr, keep_prob, weight_decay in product(lrs, keep_probs, weight_decays) :
 
 ## Class weight
 
-`2`와 `5` 그리고 `6`과 `9`를 헷갈려 하는 결과가 나왔기 때문에 `[2, 5, 6, 9]` class에 weight를 조금 실어주도록 했다. 
+`2`와 `5` 그리고 `6`과 `9`를 헷갈려 하는 결과가 나왔기 때문에 `[2, 5, 6, 9]` class에 weight를 조금 실어주도록 했다.
 
 ![](/images/3dmnist/class_weight.png)
 
 어느 한 label에 weight를 준다 해도 전체 predict에 영향을 미치기 때문에 쉽게 최적점을 찾기가 너무 힘들었다. 값을 조절하니 오히려 성능이 안좋아지는 움직임을 보였다. 따라서 class weight는 적용시키지 않기로 했다.
-
