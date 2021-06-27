@@ -17,7 +17,7 @@ author: Haribo
 
 # Prepare
 
-[지난포스트](https://gkalstn000.github.io/2021/05/08/mnist_to_3D/) 에서 확장시킨 MNIST 데이터파일을 라벨별로 정리한 파일을 [다운로드](https://drive.google.com/file/d/1lqtiK7kaSh37yZSMFrNESfIKqeG83iBn/view?usp=sharing) 해준다.
+[지난포스트](https://gkalstn000.github.io/2021/05/07/mnist_to_3D/) 에서 확장시킨 MNIST 데이터파일을 라벨별로 정리한 파일을 [다운로드](https://drive.google.com/file/d/1lqtiK7kaSh37yZSMFrNESfIKqeG83iBn/view?usp=sharing) 해준다.
 
 ```
 3dmnist/
