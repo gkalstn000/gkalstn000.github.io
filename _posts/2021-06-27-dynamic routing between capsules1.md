@@ -11,6 +11,14 @@ author: Haribo
 {:toc}
 > 2017년 Google Brain의 Geoffrey E. Hinton이 발표한 Object Recognition 분야의 새로운 접근방법을 제안한 논문이다. 기존의 Object Recognition모델들은 Convolution Network를 기반으로 설계되어있다. Convolution Network는 `feature extracting - maxpooling ` 로 이루어져있다. 여기서 `maxpooling`의 문제점을 지적하며 새로운 기법을 적용시키는데 그것이 바로 **Capsule 간의 routing by agreement** 이다. 차근차근 리뷰를 해보록 하겠다.
 
+
+
+
+
+
+
+
+
 # Reference
 
 * [Dynamic Routing Between Capsules](https://arxiv.org/abs/1710.09829) 원본 논문
