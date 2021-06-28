@@ -156,7 +156,13 @@ Routing Algorithm은 기존의 Network들처럼 feed forward하게 값을 전달
 
 ![image-20210628150625212](/images/capsnet/papercode.png)
 
-이게 논문에 나와있는 수도코드인데 이해할 수 있을꺼라 생각한다.
+이게 논문에 나와있는 수도코드인데 이해할 수 있을꺼라 생각한다. 여기서 `r`은 routing을 몇번할것인지에 대한 hyper parameter이다.
+
+![capsVSneuron](/images/capsnet/capsuleVSneuron.png)
+
+*이미지에 잘못 표기되어있는데 CapsNet에는 bias가 업다*  
+
+
 
 ## Loss Function
 
