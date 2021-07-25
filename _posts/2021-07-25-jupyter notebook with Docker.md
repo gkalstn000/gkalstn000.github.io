@@ -39,13 +39,13 @@ https://towardsdatascience.com/using-jupyter-notebook-running-on-a-remote-docker
 
 터미널에서 
 
-```
+```shell
 ssh-keygen
 ```
 
 입력 후 엔터누르면됨. 중간에 `passphrase` 설정하라는게 나오는데 비밀번호 같은것으로 생각된다. 굳이 안해도 접속 가능함. 결과물 이미지로 보여주고 싶지만 뭔가 보여주면 안될것 같은 비주얼이라 생략. 그리고 ssh를 통해 서버에 접속한다.
 
-```
+```shell
 ssh -L <로컬 포트번호>:localhost:<서버 포트번호> <server_name>@<server_IPaddr> -p <ssh_port_num>
 
 # 로컬 포트번호, 서버 포트번호는 서버 이용자들끼리 안겹치게 설정
@@ -53,7 +53,7 @@ ssh -L <로컬 포트번호>:localhost:<서버 포트번호> <server_name>@<serv
 
 예를들면 이런식으로 접속
 
-```
+```shell
 ssh -L 9999:localhost:151515 hello@1.2.3.4 -p 22
 ```
 
@@ -63,20 +63,20 @@ ssh -L 9999:localhost:151515 hello@1.2.3.4 -p 22
 
 ssh는 기본 포트가 22번인데 22번말고 다른 포트 번호로 접속하고 싶으면
 
-```
+```shell
 vi /etc/ssh/sshd_config
 ```
 
 를 실행해서
 
-```
+```shell
 #Port 22
 Port 141414  <- 새로운 포트번호 입력하면됨
 ```
 
 를 써주면 된다. 그리고
 
-```
+```shell
 # 새로 등록한 포트는 추가
 sudo ufw allow 151515/tcp
 
@@ -89,7 +89,7 @@ service ssh restart
 
 그런다음
 
-```
+```shell
 ssh -L 9999:localhost:151515 hello@1.2.3.4 -p 141414
 ```
 
@@ -103,7 +103,7 @@ GPU를 위한 `nvidia-docker`와 필요한 [이미지](https://hub.docker.com/r/
 
 문제는 그냥 컨테이너를 실행하면 컨테이너(가상환경)에서 한 작업물이 서버로 저장이 안된다. 그 문제를 해결하기위해 우선 `서버-컨테이너` 공용 저장소를 하나 만들어준다.
 
-```
+```shell
 nvidia-docker run -it \
 -p <서버 포트번호>:<도커 내부 포트번호> \
 --name <컨테이너이름> \
@@ -113,7 +113,7 @@ nvidia-docker run -it \
 
 예를들면
 
-```
+```shell
 nvidia-docker run -it \
 -p 151515:10000 \
 --name hello \
@@ -123,26 +123,26 @@ pytorch/pytorch:latest  bash
 
 이렇게 컨테이너를 만들어준다. 그러면 자동으로 컨테이너 쉘에 접속이 되는데 여기서 `jupyter notebook`를 설치해준다.
 
-```
+```shell
 pip install ipykernel
 pip install jupyter notebook
 ```
 
 설치가 끝나면 jupyter notebook를 실행
 
-```
+```shell
 jupyter notebook --ip 0.0.0.0 --port <도커 내부 포트번호> --allow-root --NotebookApp.token= --notebook-dir='/data'
 ```
 
 예를들면 이렇게
 
-```
+```shell
 jupyter notebook --ip 0.0.0.0 --port 10000 --allow-root --NotebookApp.token= --notebook-dir='/data'
 ```
 
 그리고 웹창에서 
 
-```
+```shell
 http://localhost:<로컬 포트번호>
 
 Ex)
@@ -155,13 +155,13 @@ http://localhost:9999
 
 컨테이너 종료시 쉘에
 
-```
+```shell
 exit
 ```
 
 를 치면 컨테이너가 종료상태가 된다. 다시 시작하려면 컨테이너를 켜주고 붙여주기만 하면됨.
 
-```
+```shell
 docker start <컨테이너 이름>
 docker attach <컨테이너 이름>
 ```
