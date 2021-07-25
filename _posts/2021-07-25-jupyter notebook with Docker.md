@@ -86,7 +86,7 @@ Port 141414  <- 새로운 포트번호 입력하면됨
 
 ```shell
 # 새로 등록한 포트는 추가
-sudo ufw allow 151515/tcp
+sudo ufw allow 141414/tcp
 
 # 기존 SSH 포트는 차단
 sudo ufw deny 22/tcp
