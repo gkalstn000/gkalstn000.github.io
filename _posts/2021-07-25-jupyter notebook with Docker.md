@@ -15,7 +15,7 @@ author: Haribo
 >
 > SSH나 Docker에 대한 설명은 아래 참고사이트가서 보고 오시길 바람.
 >
-> 그리고 MAC 기준 설명임. 윈도우는 할줄모름
+> 그리고 MAC 기준 설명임. 윈도우도 같다.
 
 
 
@@ -47,7 +47,9 @@ https://towardsdatascience.com/using-jupyter-notebook-running-on-a-remote-docker
 
 # SSH 연결
 
-터미널에서 
+> Client 머신에서 실행
+
+터미널에서
 
 ```shell
 ssh-keygen
@@ -71,7 +73,9 @@ ssh -L 9999:localhost:151515 hello@1.2.3.4 -p 22
 
 ### 다른 포트번호로 SSH 연결
 
-ssh는 기본 포트가 22번인데 22번말고 다른 포트 번호로 접속하고 싶으면
+> Server 머신에서 실행
+
+ssh는 기본 포트가 22번인데 22번말고 다른 포트 번호로 접속하고 싶으면 **서버 컴퓨터**에서
 
 ```shell
 vi /etc/ssh/sshd_config
@@ -106,6 +110,8 @@ ssh -L 9999:localhost:151515 hello@1.2.3.4 -p 141414
 
 
 # Notebook 접속
+
+> Client 머신에서 실행
 
 GPU를 위한 `nvidia-docker`와 필요한 [이미지](https://hub.docker.com/r/pytorch/pytorch) pull은 완료했다는 가정하에 설명을 진행한다. 안해쓰면 [여기](https://greeksharifa.github.io/references/2021/06/21/Docker/)가서 `nvidia-docker`와 원하는 이미지를 다운 받고 보면 된다. 우선 현재 대략적인 상황을 이미지로 표현하면
 
@@ -150,7 +156,7 @@ jupyter notebook --ip 0.0.0.0 --port <도커 내부 포트번호> --allow-root -
 jupyter notebook --ip 0.0.0.0 --port 10000 --allow-root --NotebookApp.token= --notebook-dir='/data'
 ```
 
-그리고 웹창에서 
+그리고 웹창에서
 
 ```shell
 http://localhost:<로컬 포트번호>
@@ -180,5 +186,35 @@ exit
 ```shell
 docker start <컨테이너 이름>
 docker attach <컨테이너 이름>
+```
+
+# 요약
+
+```shell
+# 1. SSH keygen
+ssh-keygen
+
+# 2. SSH 연결
+ssh -L <로컬 포트번호>:localhost:<서버 포트번호> <server_name>@<server_IPaddr> -p <ssh_port_num>
+
+# 3. Docker Container 생성(생성할 때 처음 한번만 하면됨)
+nvidia-docker run -it \
+-p <서버 포트번호>:<도커 내부 포트번호> \
+--name <컨테이너이름> \
+-v <컨테이너 파일 저장할 폴더 주소>:/data \
+<컨테이너 이미지>  bash
+
+#4. Jupyter 실행
+jupyter notebook --ip 0.0.0.0 --port <도커 내부 포트번호> --allow-root --NotebookApp.token= --notebook-dir='/data'
+
+#5. Jupyter notebook 접속
+http://localhost:<로컬 포트번호>
+
+#6. Jupyter, Container 종료
+exit
+
+#7. Container 재실행
+docker start <Container 이름>
+docker attach <Container 이름>
 ```
 
