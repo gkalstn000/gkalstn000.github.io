@@ -9,7 +9,7 @@ author: Haribo
 ---
 * content
 {:toc}
-> 여러가지 NLP process 중 하나이면서 정말 중요한 Relation Classification(Relation Extraction)을 1D Convoluton filter를 이용하여 해결하는 방법을 제시했던 논문이다.
+> 여러가지 NLP process 중 하나이면서 정말 중요한 Relation Classification(Relation Extraction)을 Convoluton filter를 이용하여 해결하는 방법을 제시했던 논문이다.
 
 
 
@@ -58,6 +58,127 @@ Relation Classification 또는 Relation Extraction*(이하 RE, 사실 두개가 
 > 4. 두개의 Feature들을 concat해준다.
 > 5. Softmax를 이용해 출력층을 Relation 갯수만큼의 확률분포로 만들어준다.
 
-3단계가 액기스이고 그게 전부이기 때문에 이것만 이해하면 된다.
+3단계가 액기스이고 전부이기 때문에 이것만 이해하면 된다.
 
-cont...
+# Feature Extracting
+
+위에서 말했듯 이 논문에서 제안한 RE 해결 방식은 한 문장에서 2가지 Feature(정보)를 추출한다.
+
+* Lexical Level Feature(단어 단위 정보)
+* Sentence Level Feature(문장 단위 정보)
+
+
+
+![Architecture](/images/RE_Conv/feature.png)
+
+두가지 feature extracting에대해 예시를 들어보면 위 그림처럼 한 집단내에서 한사람에 대한 정보를 2가지로 볼 수 있다.
+
+* 개인 단위 정보 - Lexical Level Feature
+* 집단 단위 정보 - Sentence Level Feature
+
+이런식으로 한 문장내에서 특정 단어 하나에 대해서 2가지씩 정보(feature)를 뽑는 것이다.
+
+## Lexical Feature
+
+> this paper uses **generic word embeddings** as the source of base features. We select the word embeddings of **marked nouns and the context tokens**.
+
+논문에 나온 Lexical Feature를 뽑는 방법을 그대로 가져왔다. 그런데 아직 NLP에대한 이해도가 많이 떨어지다보니 이게 정확히 뭔지 모르겠다. 위에서 설명은 했지만 *뭘하는건지는 알겠다, 하지만 어떻게 하는것인지는 모르겠다...* 하여튼 저 방법을 이용해 Lexical Feature를 뽑는다고 한다.
+
+![image-20210730122256180](/images/RE_Conv/image-20210730122256180.png)
+
+Lexical Feature를 추출한 결과는 이런식으로 뽑아지고, 형태는 벡터형태로 나오게된다.
+
+## Sentence Level Feature
+
+![image-20210730122256180](/images/RE_Conv/sentence.png)
+
+Sentence Level Feature Extracing은 총 3단계로 이루어져있다.
+
+1. Word Feature + Position Feature
+2. Conv + Max pooling
+3. Non-linearity(Activate Function)
+
+### Word Feature & Position Feature
+
+각 단어의 문장 수준에서의 정보를 추출하는 첫번 째 단계이다. 여기서 추출할 정보는 2가지이다.
+
+* 단어 주변 단어들은 무엇인가?
+* 단어와 target 단어와의 거리는 얼마나 떨어져있는가?
+
+![image-20210730122256180](/images/RE_Conv/wfpf.png)
+
+이미 이전 단계에서 각 단어들은 밀집벡터(embedding vector)로 표현되어있고, window size는 3으로 했을 때의 Word Fearue(이하 WF)와 Position Feature(PF)는 이렇게 된다.
+
+![image-20210730122256180](/images/RE_Conv/wfpf_ex.png)
+
+조금더 자세하게 살펴보자
+
+![image-20210730122256180](/images/RE_Conv/wfpf1.png)
+
+> $n\ :\ Embedding\ dimension$
+>
+> $w\ :\ window\ size$
+>
+> $x \subseteq \mathbb{R}^{n} $
+>
+> $t\ : $토큰(단어) 수
+>
+> $n_{0}\ :\ w \times n\ +\ len(PF)$
+>
+> $n_{1} : hidden\ size\ of\ next\ layer$
+>
+> $W_{1} : n_{1} \times n_{0}$
+
+$n_{0}$이 의미하는 것은 각 단어(토큰)에 대해서 WF와 PF를 concat한 길이를 의미한다. 즉 $X$가 의미하는 것은 각 토큰에 대해 WF+PF들을 구한 행렬을 의미한다.
+
+>  WF = $w \times n$
+>
+> PF = 2
+
+그런데 논문에서는 
+
+> where $n_0 = w \times n$, $n$ (a hyperparameter) is the dimension of feature vector, and $t$ is the token number of the input sentence
+
+PF 길이를 안더해주는데 좀 건방지지만 아마 논문에서 잘못쓴게....아닌가싶다*(아님랄로)*.
+
+### Convolution
+
+흔히 아는 Conv filter로 특징 추출을 하는것이 아니라 그냥 행렬 곱을 해준것 밖에 없는데 왜 Convolution이라고 붙였는지 모르겠다.
+
+> $Z = W_1 \cdot X$
+
+이 $Z$가 Convolution을 한 결과다. 그리고 row 별로 max pooling을 해준다.
+
+![image-20210730122256180](/images/RE_Conv/max.png)
+
+### Non-linearity
+
+마지막으로 max pooling의 결과인 $m$벡터와 $W_2$를 내적해준다. $W_2$의 사이즈는 $n_{2} \times n_{1}$이다. 그리고 위 그림에서 나왔듯이 하이퍼볼릭 탄젠트 함수를 이용해 벡터를 [-1, 1]사이 값으로 만들어준다.
+
+# Output
+
+![image-20210730122256180](/images/RE_Conv/done.png)
+
+여기까지가 빨간 네모박스 까지 진행한것이다. 그 다음 단계는 정말 쉽다.
+
+> * $f$ = concat(lexical feature, sentence feature)
+> * $O = W_3 \times f$
+
+$O$의 길이는 relation의 종류의 수(others 포함)가된다. 여기까지가 FeedForward Propagation이다.
+
+# Back Propagation
+
+정말 간단하다. output $O$에 softmax를 취한 뒤 $Log likelihood$를 취한것이 Loss함수다.
+
+> $$p(i|x, \theta) = \frac{e^{o_{i}}}{\sum_{k=1}^{n_{4}}e^{o_{k}}}$$
+>
+> $$L(\theta) = log\ p(y|x, \theta)$$
+
+파라미터 업데이트는
+
+> $$\theta \leftarrow \theta + \lambda\frac{\partial log p(y|x, \theta)}{\partial \theta}$$
+
+# 실험(pass)
+
+실험결과인데 대단한 내용도없고, 재밌는 실험도 없고 귀찮기도 해서 pass 할 예정이다. 대충 요약하면 다른 기존의 모델들과 비교(f1 scorer기준), 최적의 하이퍼파라미터, 그리고 추출한 특징(lexical, sentence)에 대해서 간략하게 소개하는 내용이다. 
+
