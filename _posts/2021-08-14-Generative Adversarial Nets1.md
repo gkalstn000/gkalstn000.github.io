@@ -2,7 +2,7 @@
 layout: post
 title:  "[논문리뷰]Generative Adversarial Nets part1"
 categories: ML AI Paper_Review
-date:   2021-08-05 00:10:18 +0900
+date:   2021-08-14 00:10:18 +0900
 tags: Paper GAN
 mathjax: True
 author: Haribo
