@@ -150,7 +150,7 @@ $a, b \geq 0,\ (a, b)\in \mathbb{R}^{2}$ 일 때 $a\log(y)+b\log(1-y)$ 꼴의 �
 
 ### Proposition 2.
 
-> $D$와 $G$의 성능이 충분하다면 Algorithm 1은 $G$가 주어졌을 때 $D \rightarrow D^{\*}_{G}$ 로 가고 $p_{g}$가 업데이트되면서 $p_{data}$로 수렴하게 된다.
+> $D$와 $G$의 성능이 충분하다면 Algorithm 1은 $G$가 주어졌을 때 $$D \rightarrow D^{*}_{G}$$ 로 가고 $p_{g}$가 업데이트되면서 $p_{data}$로 수렴하게 된다.
 
 ### proof
 
