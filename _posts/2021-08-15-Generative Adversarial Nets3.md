@@ -298,4 +298,6 @@ imshow_grid(G(sample_z(16,100)).view(-1, 1, 28, 28))
 
 # Conclude
 
-`k`값을 바꿔가며 돌리면 generator가 $1$만 생성하다 어느순간부터 아무것도 생성하지 못하는 mode collapse를 확인할 수 있다. $D$와 $G$의 학습상태 차이가 나서 생기는 일인데 이를 극복한것이 바로 [Wasserstein GAN](https://arxiv.org/abs/1701.07875)이고 다음에 포스트 할 예정이다.
+`k`값을 바꿔가며 돌리면 generator가 $1$만 생성하다 어느순간부터 아래의 이미지 처럼 아무것도 생성하지 못하는 mode collapse를 확인할 수 있다. $D$와 $G$의 학습상태 차이가 나서 생기는 일인데 이를 극복한것이 바로 [Wasserstein GAN](https://arxiv.org/abs/1701.07875)이고 다음에 포스트 할 예정이다.
+
+![image-20210815181318130](/images/GAN/mode collapse.png)
