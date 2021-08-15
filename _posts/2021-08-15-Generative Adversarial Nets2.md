@@ -2,7 +2,7 @@
 layout: post
 title:  "[논문리뷰]Generative Adversarial Nets part2"
 categories: ML AI Paper_Review
-date:   2021-08-14 00:15:18 +0900
+date:   2021-08-15 00:15:18 +0900
 tags: Paper GAN
 mathjax: True
 author: Haribo
@@ -178,7 +178,7 @@ $a, b \geq 0,\ (a, b)\in \mathbb{R}^{2}$ 일 때 $a\log(y)+b\log(1-y)$ 꼴의 �
 > * maxout activations
 > * Dropout while training
 
-실험 데이터셋은 MNIST, TFD, CIFAR-10으로 설정하였고 실험과는 generator가 생성한 가짜데이터들의 확률분포가 test set 데이터들의 확률분포와 얼마나 닮아있는가를 측정하였다. 그 방법은 loglikelihood를 정의하기 힘든 generative 모델들을 성능평가할 때 자주 사용되는 Breuleux의 [방법](http://www.iro.umontreal.ca/~lisa/pointeurs/breuleux+bengio_nc2011.pdf)을 사용했다는데 나도 처음보는 거라 자세히는 모르겠다. 대충 보니까 [kernel 함수](https://jayhey.github.io/novelty%20detection/2017/11/08/Novelty_detection_Kernel/)를 이용하는 듯 하다.
+실험 데이터셋은 MNIST, TFD, CIFAR-10으로 설정하였고 실험결과는 generator가 생성한 가짜데이터들의 확률분포가 test set 데이터들의 확률분포와 얼마나 닮아있는가를 측정하였다. 그 방법은 loglikelihood를 정의하기 힘든 generative 모델들을 성능평가할 때 자주 사용되는 Breuleux의 [방법](http://www.iro.umontreal.ca/~lisa/pointeurs/breuleux+bengio_nc2011.pdf)을 사용했다는데 나도 처음보는 거라 자세히는 모르겠다. 대충 보니까 [kernel 함수](https://jayhey.github.io/novelty%20detection/2017/11/08/Novelty_detection_Kernel/)를 이용하는 듯 하다.
 
 ![image-20210815142924709](/images/GAN/table1.png) 
 
@@ -255,3 +255,7 @@ inference net이 뭔지 몰라서 2, 3, 4번은 무엇을 의미하는지 잘 �
 ## Acknowledgments
 
 연구를 도와준 사람들을 샤라웃하는 부분.
+
+---
+
+이정도하고 끝내려고 했는데 유종의 미는 거둬야하니까 다음 포스트는 GAN 코드리뷰를 해보도록 하겠다.
