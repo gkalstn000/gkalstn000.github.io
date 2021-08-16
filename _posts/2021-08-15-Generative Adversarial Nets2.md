@@ -244,7 +244,7 @@ inference net이 뭔지 몰라서 2, 3, 4번은 무엇을 의미하는지 잘 �
 >    * 이거는 실제로 이후에 [CGAN](https://arxiv.org/abs/1411.1784)으로 연구결과가 발표되었다.
 >
 > 2. sample data로 $z$를 예측하는 모델을 훈련시킴으로서 **Learned approximate inference**(뭔지모름)을 만들 수 있음. 
->    * 이게 예전의  inference net을 학습시키는 wake-sleep algorithm인것 같지만 Learned approximate inference은 $G$가 완벽히 학습된 상태에서도 학습 가능하다 라고한다.
+>    *  inference net을 학습시키는 wake-sleep algorithm와 비슷하지만 Learned approximate inference은 $G$가 완벽히 학습된 상태에서도 학습 가능하다 라고한다.
 > 3. One can approximately model all conditionals $p(x_{S} \mid  x_{\not{S}})$ where $S$ is a subset of the indices of $x$ by training a family of conditional models that share parameters. Essentially, one can use adversarial nets to implement a stochastic extension of the deterministic [MP-DBM](https://proceedings.neurips.cc/paper/2013/hash/0bb4aec1710521c12ee76289d9440817-Abstract.html)
 >    * 이건 도저히 모르겠음
 > 4. Semi-supervised learning
