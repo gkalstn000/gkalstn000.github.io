@@ -224,7 +224,7 @@ def evaluate_model(generator, discriminator):
         with torch.autograd.no_grad():
             p_real += (torch.sum(discriminator(img_batch.view(-1, height*width))).item())/10000.
             p_fake += (torch.sum(discriminator(generator(sample_z(batch_size, d_noise)))).item())/10000.
-		# p_real + p_fake != 1
+    # p_real + p_fake != 1
     # 각 데이터에대한 독립적인 확률값임
     return p_real, p_fake
 ```
