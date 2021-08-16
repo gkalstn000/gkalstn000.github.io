@@ -32,7 +32,7 @@ author: Haribo
 
 
 
-GAN이 워낙 인기가 많다보니 여러 GAN시리즈가 있는데 [이 사람](https://github.com/eriklindernoren/PyTorch-GAN)의 코드가 가장 하트도 많이받고, 또 다양 시리즈의 GAN 코드 구현한게 정리되어있어서 이사람의 코드를 참고해서 보면 좋을 것이다. 하지만 오늘 리뷰할 코드는 다른사람의 코드인데 오래전에 복붙하고 수정해서 출처를 못남기겠다..
+GAN이 워낙 인기가 많다보니 여러 GAN시리즈가 있고 많은 고수들의 코드들이 있지만 Apple ML 개발자인 [Erik Linder-Norén](https://github.com/eriklindernoren/PyTorch-GAN)의 코드가 가장 하트도 많이받고, 또 다양 시리즈의 GAN 코드 구현한게 정리되어있어서 이사람의 코드를 참고해서 보면 좋을 것이다. 하지만 오늘 리뷰할 코드는 다른사람의 코드인데 오래전에 복붙하고 수정해서 출처를 못남기겠다..
 
 # import 
 
