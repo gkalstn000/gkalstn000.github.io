@@ -282,7 +282,7 @@ plt.show()
 
 ![img](/images/GAN/img4.png)
 
-둘다 0.5의 확률로 수렴하는것을 볼 수 있음.
+둘다 0.5의 확률로 수렴하는것을 볼 수 있는데 이는 사실 잘못되어가고 있는상태로 볼 수 있다.  **$D$는 input이 real image일 확률을 출력해주는 역할을 해야한다.** 가장 이상적인 형태는 $D(x_{real})$의 확률은 1에 가깝고, $D(x_{fake})$는 계속 상승해서 1에 가까워지는 형태가 가장 이상적이다. 논문에서 "$D$ is $\frac{1}{2}$ everywhere" 이라는 부분이 있는데 이는 이론적으로 완벽하게 학습된 GAN은 $D(x_{real}) = D(x_{fake}) = 1$ 이 된다. 따라서 $D$가 정답을 통계적으로 고를 수 없고 찍을 수 밖에 없기 때문에 $D = \frac{1}{2}$이 된다라고 한것이다.
 
 ```python
 vis_loader = torch.utils.data.DataLoader(test_data, 16, True)
