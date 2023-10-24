@@ -48,3 +48,8 @@
 // Import partials from `sass_dir` (defaults to `_sass`)
 @import "reset", "header", "post", "page", "syntax-highlighting", "index", "demo", "footer", "scrollbar", "backToTop";
 /* LaTex align 설정 .mjx-block */
+
+.mjx-chtml {
+    text-align: left !important;
+    display: inline-block !important;
+}
