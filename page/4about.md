@@ -12,9 +12,10 @@ type: page
 
 <div style="text-align: left; width: 25%;">   
   <figure>     
-    <img src="/images/profile/KakaoTalk_Photo_2023-10-30-00-50-55.jpeg" >     
+    <img src="https://private-user-images.githubusercontent.com/26128046/285928552-0c6f118f-fad1-4d66-b2a3-9746825b24f7.jpeg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDExMDAzMjgsIm5iZiI6MTcwMTEwMDAyOCwicGF0aCI6Ii8yNjEyODA0Ni8yODU5Mjg1NTItMGM2ZjExOGYtZmFkMS00ZDY2LWIyYTMtOTc0NjgyNWIyNGY3LmpwZWc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBSVdOSllBWDRDU1ZFSDUzQSUyRjIwMjMxMTI3JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIzMTEyN1QxNTQ3MDhaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1kNDYxODUyZDU3Mzg3YzIyYjllOGNhYjI0ODQwNGI5M2Y5ZDU1ZjA0NDQzODNiY2RlZmYyYTc5MDA4YzU0OGJkJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9.EG_Q7-Rpit_Ky3PpHzfou4PX8CppnRVjJaG94kd08Io" >     
   </figure> 
 </div>
+
 
 March, 28, 1995
 
@@ -76,9 +77,10 @@ March, 28, 1995
 
 <div style="text-align: center;">   
   <figure>     
-    <img src="/images/profile/image-20231031004656979.png" >     
+    <img src="https://private-user-images.githubusercontent.com/26128046/285928641-dd83b06e-5647-4eb0-849b-4041a7f3a122.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDExMDAzMjgsIm5iZiI6MTcwMTEwMDAyOCwicGF0aCI6Ii8yNjEyODA0Ni8yODU5Mjg2NDEtZGQ4M2IwNmUtNTY0Ny00ZWIwLTg0OWItNDA0MWE3ZjNhMTIyLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzExMjclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMTI3VDE1NDcwOFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWMyOTUzNWQ1YTI5ZDM4ZGVkMjQ1OTdkZGNkNzQ2NTdhMTBjOWI2NzY1ZGJiNzBhNDAwNTc3NDA2YmIzOGFhODQmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.wKTgnFLAd2mE4HnOuyNJiXcv-mduHv_6Zir3AIiLTeU" >     
   </figure> 
 </div>
+
 
 Pose Guided Person Image Generation (PGPIG) task는 source image의 texture, identity 등 특징을 유지하며 임의의 자세에 맞는 이미지 생성하는 task.
 
@@ -106,9 +108,24 @@ Pose Guided Person Image Generation (PGPIG) task는 source image의 texture, ide
 
   * <div style="text-align: center;">   
       <figure>     
-        <img src="/images/profile/image-20231031010326447.png" >     
+        <img src="https://private-user-images.githubusercontent.com/26128046/285928646-e8212f9a-40d7-4412-9dfd-808a308781f3.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDExMDAzMjgsIm5iZiI6MTcwMTEwMDAyOCwicGF0aCI6Ii8yNjEyODA0Ni8yODU5Mjg2NDYtZTgyMTJmOWEtNDBkNy00NDEyLTlkZmQtODA4YTMwODc4MWYzLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzExMjclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMTI3VDE1NDcwOFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWIyOGE4N2I5NDU4ZWM2MDkwMzA2YjVlZWQ4NjEzMDU5OWYwYmY3N2UzODI1ZThhODE1YWNhYWU1M2Q2YWZlNjcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.XTIk91JHVXmlTIPVJSHB9IS8j7Y_BP9qLiTpKTm6VUo" >     
       </figure> 
     </div>
+
+---
+
+### Implant Tooth Localization via Diffusion Model 
+
+
+
+<div class="responsive-video-container" style="text-align:center;">
+	<iframe src="https://www.youtube.com/embed/DsYCe7-vEq8" title="" frameborder="0" style="margin: 0 auto; display: block;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <p style="text-align:center; font-size: 14px; margin-top: 10px;">왼쪽 부터 Input / Output / Difference / Segmentation</p>
+</div>
+
+## 
+
+
 
 ---
 
@@ -134,15 +151,16 @@ Pose Guided Person Image Generation (PGPIG) task는 source image의 texture, ide
 
   * <div style="text-align: center;">   
       <figure>     
-        <img src="/images/profile/image-20231031003105820.png" >     
+        <img src="https://private-user-images.githubusercontent.com/26128046/285928632-a9043336-7718-4db8-aefa-733c376e02ad.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDExMDAzMjgsIm5iZiI6MTcwMTEwMDAyOCwicGF0aCI6Ii8yNjEyODA0Ni8yODU5Mjg2MzItYTkwNDMzMzYtNzcxOC00ZGI4LWFlZmEtNzMzYzM3NmUwMmFkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzExMjclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMTI3VDE1NDcwOFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWJhNmFmNTdmZDdiM2Q1ZGIzZjUxNDRmNzE3MzdlNjc1ZWYwMTMzMzlmOTkxMWMyZmRkNTg2MGMwZTQyYWVmM2UmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.toqzu_nUamrRzDmd9o3XdUeUueucEjd9ghkXWPX200A" >     
       </figure> 
     </div>
 
+    
     <div class="responsive-video-container" style="text-align:center;">
     	<iframe src="https://www.youtube.com/embed/qnMxNfZViCY" title="" frameborder="0" style="margin: 0 auto; display: block;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           <p style="text-align:center; font-size: 14px; margin-top: 10px;">좌: openCV warpAffine() 라이브러리, 우: 자체 개발 알고리즘</p>
-    </div>
-
+      </div>
+      
   * **좌**: openCV `warpAffine()` 라이브러리,     **우**: 자체 개발 선형 변환 알고리즘
 
 ---
@@ -158,17 +176,27 @@ Pose Guided Person Image Generation (PGPIG) task는 source image의 texture, ide
 * Active Learning은 모델이 라벨링이 없는(unlabeled) 데이터 중 가장 정보량이 많은 데이터를 선택해 사람에게 라벨링을 요청.
 * 정보량이 높은 데이터일수록 모델은 해당 데이터의 정답(라벨)을 판단함에 있어 어려움이 있을 것.
 * 모델이 분류한 데이터 중 score가 낮았던 데이터와 Active Learning에서 정보량이 높다고 판단했던 데이터가 서로 반비례 관계가 있을 것이라는 가설을 세웠고 실험을 통해 확인.
-* ![image-20231031012952347](../images/profile/image-20231031012952347.png)
+* 
+* <div style="text-align: center;">   
+  <figure>     
+    <img src="https://private-user-images.githubusercontent.com/26128046/285928651-ffc15792-3bf9-4df7-bebe-6cc03d042277.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDExMDAzMjgsIm5iZiI6MTcwMTEwMDAyOCwicGF0aCI6Ii8yNjEyODA0Ni8yODU5Mjg2NTEtZmZjMTU3OTItM2JmOS00ZGY3LWJlYmUtNmNjMDNkMDQyMjc3LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzExMjclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMTI3VDE1NDcwOFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTE5YjNlZjAzOWE5ZWU2YTJlMTljMmY5ZmRlNmMyMjBiNjJhOGVkMDYyMTczYTVmMDZiNTlmOWUyZTA5NWZjMjYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.DMnLadO4JcJlL8p3JApXim2STc0zaN64FSSZRgRsH6A" >     
+  </figure> 
+  </div>
+
+* 
   * 막대 그래프는 active learning을 통해 얻은 불확실성 score, 파란 그래프는 entity 별 f1-score.
   * entity에 대한 불확실성과 f1-score는 서로 반비례 관계를가짐, active learning은 모델이 어려워하는 entity 위주로 데이터 선별 -> 효과적인 학습 가능.
 
 ---
 
-### **Font-generation via Diffusion Model (진행 중...)**
+### Implant Tooth Localization via Diffusion Model 
 
 
 
-
+<div class="responsive-video-container" style="text-align:center;">
+	<iframe src="https://www.youtube.com/embed/DsYCe7-vEq8" title="" frameborder="0" style="margin: 0 auto; display: block;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <p style="text-align:center; font-size: 14px; margin-top: 10px;">왼쪽 부터 Input / Output / Difference / Segmentation</p>
+</div>
 
 ## 연락 주소
 
