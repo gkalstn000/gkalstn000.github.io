@@ -31,9 +31,10 @@ author: Haribo
 
 <div style="text-align: center;">   
   <figure>     
-    <img src="https://private-user-images.githubusercontent.com/26128046/288264103-46f345e8-3cac-4bc9-9649-81984f001338.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDE4MzA3NzUsIm5iZiI6MTcwMTgzMDQ3NSwicGF0aCI6Ii8yNjEyODA0Ni8yODgyNjQxMDMtNDZmMzQ1ZTgtM2NhYy00YmM5LTk2NDktODE5ODRmMDAxMzM4LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzEyMDYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMjA2VDAyNDExNVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWIxMjY3YTM3N2RiNDA2MzEzOWI5MGFlOTVlYTc0OTIzMmYzNjhhN2JjODM0ODIxNTZhMDQ5Mzg3ZGEzZjZkYzkmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.0S_SVxLJNITzfsOMScloaRwuzE-M5Ul4sCaLMly2y2g">     
+    <img src="https://user-images.githubusercontent.com/26128046/288264103-46f345e8-3cac-4bc9-9649-81984f001338.png">     
   </figure> 
 </div>
+
 
 
 
@@ -80,9 +81,10 @@ Second stage: Progressively distill the model learned from the first stage to a 
 Weighted mean squared error.  
 
 
-$$
-\mathbb{E}_{t \sim U[0, 1], x \sim p_{data}(x), z_t \sim q(z_t | x)}[\omega(\lambda_t)\left\| \hat{x}_{\theta}(z_t)-x \right\|^2_2]
-$$
+
+> $$
+> \mathbb{E}_{t \sim U[0, 1], x \sim p_{data}(x), z_t \sim q(z_t | x)}[\omega(\lambda_t)\left\| \hat{x}_{\theta}(z_t)-x \right\|^2_2]
+> $$
 
 * $$\lambda_t = \log[\frac{\alpha^2_t}{\sigma^2_t}]$$ 는 [Variational Diffusion Models](https://arxiv.org/abs/2107.00630) 의 signal-to-noise ratio 
 * $q(z_t \mid x)= N(z_t; \alpha_tx, \sigma^2_tI)$ 와 $\omega(\lambda_t)$ 는 [Variational Diffusion Models](https://arxiv.org/abs/2107.00630) 의 pre-specified weighting function
@@ -92,9 +94,11 @@ $$
 학습 완료 된 model $\hat{x}_{\theta}$ 은 DDIM 을 통해 sampling 할 수 있음. DDIM sampler 는 $z_1 \sim N(0, I)$ 에서 시작해 아래와 같은 update 방식을 따름.
 
 
-$$
-z_s = \alpha_s\hat{x}_{\theta}(x_t) + \sigma_s\frac{z_t - \alpha_t\hat{x}_{\theta}(x_t)}{\sigma_t},\quad s = t - \frac{1}{N}
-$$
+
+> $$
+> z_s = \alpha_s\hat{x}_{\theta}(x_t) + \sigma_s\frac{z_t - \alpha_t\hat{x}_{\theta}(x_t)}{\sigma_t},\quad s = t - \frac{1}{N}
+> $$
+
 $N$ 은 sampling step의 총 횟수.
 
 최종 sample은 $\hat{x}_\theta(z_0)$ 으로부터 생성됨.
