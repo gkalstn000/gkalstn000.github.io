@@ -205,7 +205,7 @@ CF-guidance의 핵심 요소는 guidance strength parameter $w$ 로 diffusion mo
 
 
 
-$N$ 은 student의 total sampling 횟수 이고 $w \sim U[w_{min}, w_{max}]$ , $t \sim \left\{ 1, \, \dots, \, N \right\}$ 이 주어졌을 때 student $\hat{x}_{\eta_2}$ 의 output을 teacher $\hat{x}_{\eta_1}$ 의 2-step DDIM output과 같아지도록 학습한다.
+$N$ 은 student의 total sampling 횟수 이고 $w \sim U[w_{min}, w_{max}]$ , $$t \sim \left\{ 1, \, \dots, \, N \right\}$$ 이 주어졌을 때 student $\hat{x}_{\eta_2}$ 의 output을 teacher $$\hat{x}_{\eta_1}$$ 의 2-step DDIM output과 같아지도록 학습한다.
 
 * teacher의 첫번 째 sampling step: $\frac{t}{N} \sim t - \frac{1}{2N}$
 * teacher의 두번 째 sampling step: $t - \frac{1}{2N} \sim t - \frac{1}{N}$
