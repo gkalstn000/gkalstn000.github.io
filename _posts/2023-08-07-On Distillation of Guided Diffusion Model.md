@@ -225,3 +225,86 @@ Teacher 의 $2N$ step을 student 의 $N$ step으로 distilling 한 뒤, $N$ step
 
 ### 3.3 $N$-step deterministic and stochastic sampling
 
+Distillation을 통해 teacher가 수행해야 할 sampling step보다 절반이 줄어든 $\hat{x}_{\eta_2}$ 는 특정 구간의 guidance 범위에 $$w \in \left [ w_{min}, w_{max} \right ]$$ 대해 DDIM 을 통해 원하는 이미지 sampling이 가능하다. 
+
+이 때 DDIM 은 *deterministic*  sampling procedur 이지만 $N-step$ *stochastic* sampling 을 활용한 distillation 훈련도 가능하다고 한다.
+
+* 아마도 본 논문에선 DDIM을 예시로 썼지만, 실험을 해본 결과 다른 sampling 방식또한  distillation 가능하다 라는 것을 보여주고 싶었는듯..
+
+> Stage-one, Stage-two 에서 distillation 할 때 deterministic sampling 방식인 DDIM을 활용했으나 stochastic sampling 방식을 통해서도 distillation 학습 및 sampling이 가능하다라는 것을 설명하는 챕터인듯하다.
+>
+> Stochastic sampling 관련 선행연구로는 아래의 대표적인 논문이 있는 것같은데 ODE와 score based 개념이 필요한 너무 어려운 논문이라 지금 당장은 이 챕터를 이해하기엔 무리가 있을 듯하다.
+>
+> * [Elucidating the Design Space of Diffusion-Based Generative Models](https://arxiv.org/pdf/2206.00364.pdf) 
+> * [Score-Based Generative Modeling through Stochastic Differential Equations](https://arxiv.org/abs/2011.13456)
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/288965401-d44f7f9b-0c04-4e94-bb72-684543a01ced.png">
+    <figcaption>Stochastic sampling</figcaption>   
+  </figure> 
+</div>
+
+원래 step보다 2배가 긴 deterministic sampling step을 한번 거친 뒤, stochastic step을 뒤로 적용하며 sampling 을 수행한다고 한다.
+
+
+
+# 4. Experiments
+
+저자들이 실험을 통해 보여주고자 하는 주요 내용은, 제안된 2-stage distillation 학습 방법이 pixel-space diffusion과 latent-space diffusion 모두에 적용 가능하며, 더 나아가 text-guided image editing, inpainting 등 다양한 diffusion task에도 효과적으로 사용될 수 있다는 것이다.
+
+실험 결과에 따르면, 이 방법은 단 2~4 step 만으로도 경쟁력 있는 성능(competitive performance)을 보여준다. 이는 훨씬 적은 샘플링 스텝으로도 높은 품질의 결과를 얻을 수 있음을 의미하며, 이는 디퓨전 모델의 효율성과 범용성을 대폭 향상시키는 중요한 발전이다.
+
+## 4.1 Distillation for pixel-space guided model
+
+제안하는 학습 방식이 pixel-space에서 통하는지 입증하는 실험
+
+**Setting**
+
+* Dataset: ImageNet 64x64, CIFAR-10
+* $$ \left [ w_{min}, w_{max} \right ] = \left [ 0, 4 \right ]$$
+* 비교 대상
+  * Teacher full step (DDPM == DDIM 1024 steps)
+  * Teacher DDIM samplings
+  * Single-w
+    * distilled 된 모델  $\hat{x}_{\eta_2}$ 의 다양한 $w$ 값을 실험하는 것 외에도, 특정 고정된  $w$값으로 모델을 distill 시켜 그 결과를 기준점으로 사용하여,  $w$의 영향을 더 명확히 이해하기 위해 세팅.
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/288967003-4a5971eb-7c62-4b48-9207-c8f9a4ccd599.png">
+    <figcaption>Pixel space comparison. D/S는 각각 deterministic/stochastic sampling 을 의미</figcaption>   
+  </figure> 
+</div>
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/288969328-e0eee082-598b-426d-9e77-19002332cb3b.png">
+    <figcaption>guidance weight 변화에 따른 FID/IS 변화</figcaption>   
+  </figure> 
+</div>
+
+최초의 teacher model의 1024 sampling step과 student의 4~16 sampling 된 결과물의 score가 거의 비슷하거나 더 좋은 케이스를 확인할 수 있음.
+
+고정된 $w$ 로 distill 학습 된 모델과 비교해도 competive 한 성능을 보여줌.
+
+
+
+## 4.2 Distillation for latent-space guided models
+
+뒷 내용들은 딱히 분석할 만한 실험 결과가 없어서 생략.
+
+Latent-space에서도 잘 동작하며, 다양한  task에도 문제 없다는 내용.
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/288969977-a952df3b-71f9-4fd0-8594-83771a34c51c.png">
+    <figcaption>Text-to-Image</figcaption>   
+  </figure> 
+</div>
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/288970024-c2526fa2-614b-4118-9625-6d037b0c9f59.png">
+    <figcaption>Text guided Image-to-Image translation</figcaption>   
+  </figure> 
+</div>
