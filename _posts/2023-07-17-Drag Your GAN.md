@@ -65,3 +65,24 @@ author: Haribo
 
 ## 2.1 Interactive Point-based Manipulation
 
+latent code $w$ 와 GAN을 통해 생성 된 이미지 $$I \in \mathbb{R} ^ {3 \times H \times W}$$ 가 주어지고, user의 입력값이 각각 아래와 같이 주어졌을 때,
+
+* handle points: $$\left\{ p_i = (x_{p,i}, y_{p,i}) \mid i=1,2, \dots, n) \right\}$$
+* Target points: $$\left\{ t_i = (x_{t,i}, y_{t,i}) \mid i=1,2, \dots, n) \right\}$$
+
+이미지 내부의 object를 움직이는 것을 목표로 한다. 추가적으로 유저의 선택으로 움직일 부분을 제한하는 binary mask $M$ 도 사용 가능하다.
+
+> $w \in W$ 를 통해 생성된 GAN의 중간 feature map 의 좌표 $p_i=(x_{p,i}, y_{p,i})$ 에 대응되는 벡터값이 $v_i$ 라 가정해보자. 이때, 다른 좌표 $t_i=(x_{t,i}, y_{t,i})$에서 $v_i$와 동일한 벡터 값을 가진 중간 feature map 을 생성하는 $w' \in W$가 존재할 것이고, 본 논문은 이러한 **최적의 $w'$ 를 찾는 문제**로 볼 수 있다.
+
+위 그림에서 확인할 수 있듯이 optimization step은 2개의 sub-step으로 구성되고 서서히 이미지를 변경해가는 과정을 거친다.
+
+1. Motion supervision: latent code $w$ 를 변경해가며 $p_i$ 위치의 벡터값들을 $t_i$ 에 위치하게끔 한다.
+2. Point tracking: 변형 된 $w'$를 통해 생성된 조금 변형 된 새로운 이미지 $I'$ 에서,  기존 $p_i$ 위치의 벡터값과 동일한 벡터값을 가지는 위치를 tracking.
+
+이런 최적화 과정을 서서히 거치면서 이미지 내의 객체를 움직이게끔 하고 보통 30~200 step이 소요된다고 한다.
+
+
+
+## 2.2 Motion Supervision
+
+## 2.3 Point Tracking
