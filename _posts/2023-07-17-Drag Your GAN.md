@@ -15,15 +15,10 @@ author: Haribo
 
 ---
 
->*DragGAN* allows users to control various spatial attributes by **'dragging'** the content of any GAN-generated images.
->
->In real-world applications, a critical functionality requirement of image synthesis methods is controllability.
->
->Ideal controllable image synthesis approach properties
->
->* **Flexibility**: control different spatial attributes
->* **Precision**: control the spatial attributes with high precision
->* **Generality**: applicable to different object categories but not limited to a certain category
+>* 새로운 GAN 모델을 만드는 것이 아닌 기존의 GAN (StyleGAN2)을 컨트롤 하는 연구.
+>* Src, Tgt 두 종류의 포인터로 생성 된 이미지의 pose, shape, expression 등등을 변형.
+>* GAN을 컨트롤 하는데에 있어 추가적인 인공지능 모델 학습이나 활용 필요없이 내부 featuremap domain에서 연산이 진행됨.
+>* GAN의 잠재능력을 극한으로 활용하는 느낌.
 
 <div style="text-align: center;">   
   <figure>     
@@ -39,15 +34,34 @@ author: Haribo
 
 
 
-# Introduction
+# 1. Introduction
 
-2014년 GAN(Generative Adversarial Networks)의 등장과 2020년 DDPM(Denoising Diffusion Probabilistic Models)의 등장은 이미지 생성 연구에 큰 변화를 가져왔다. 이러한 발전은 이미지 생성 분야에서 놀라운 성과를 가져왔지만, 실제 응용에서는 단순히 조건에 맞는 이미지를 생성하는 것뿐만 아니라 생성된 이미지를 세밀하게 조절할 수 있는 능력이 중요하다.
-
-이미지 조절에는 인물의 위치, 감정, 표정 변경과 같은 다양한 요소들이 포함됩니다. 사용자의 이러한 다양한 요구를 만족시키기 위해서는 다음 세 가지 요소가 필요하다:
+생성 모델을 real-world applications에서 활용하기 위해선 이미지 생성을 유저가 원하는대로 컨트롤 할 수 있어야한다. 이를 위해 다양한 conditional image synthesis 방법론들이 등장했는데 대표적으로 semantic map을 기반으로 한 이미지 생성 연구 ([SPADE](https://arxiv.org/abs/1903.07291)), text-to-image 연구 ([Dalle2](https://cdn.openai.com/papers/dall-e-2.pdf)) 등등이 있다. 하지만 이런 컨트롤 방식들은 사용자의 다양한 요구를 만족시키기 어렵고 이상적인 이미지 합성을 컨트롤 하기위해 아래의 3가지 조건이 충족 되어야한다고 정의한다.
 
 1. **유연성(Flexibility)**: 다양한 공간적 속성을 조절할 수 있어야함.
 2. **정밀성(Precision)**: 공간적 속성을 높은 정밀도로 조절할 수 있어야함.
 3. **일반성(Generality)**: 특정 카테고리에 국한되지 않고 다양한 객체 카테고리에 적용 가능해야함.
 
-본 논문에서는 사용자가 변형하고 싶은 부위에 대한 핸들 포인트를 클릭하여 형성하고, 변경하고자 하는 방향에 대한 타겟 핸들 포인트를 설정함으로써, 원하는 방식으로 이미지를 조절할 수 있는 기능을 소개한다.
+이러한 3가지 조건들 달성하기 위해 저자들은 생성모델에서 point-based manipulation이 가능한 방법론을 제안한다. 클릭을 통해 다수의 handle points와 그에 대응되는 target points가 주어졌을 때, handle points를 대응되는 target points로 옮기는 것을 목표로 한다. 관련 선행연구로 [UserControllableLT](https://arxiv.org/abs/2208.12408) 가 존재하지만 2가지 명확한 한계점이 있다. 1) 다수의 handle points에 대해서 잘 동작하지 못함, 2) handle points를 정확하게 target points 에 도달하지 못함. 본 논문에선 위의 3가지 이미지 합성 컨트롤 조건을 충족시키며 기존 연구의 2가지 한계점을 극복하기 위해 2개의 문제를 다룬다.
+
+1. Supervising the handle points to move towards the gargets
+2. Tracking the handle points
+
+이 두 문제는 오로지 GAN의 feature space에서 연산되며 handle point를 추적하기위한 추가적인 네트워크가 필요없는 강점이 있으며 몇초밖에 안걸리는 매우 빠른 연산이 가능하다.
+
+
+
+# 2. Method
+
+본 연구는 사전 학습 된 GAN 모델에서 클릭을 통해 handle points, target points 를 생성한 후 이미지를 컨트롤 하는 방법을 다룬다. 
+
+* StyleGAN2 모델 기반.
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/290089333-717c2ae1-a202-481f-a23b-c4e98bfe3f66.png">     
+  </figure> 
+</div>
+
+## 2.1 Interactive Point-based Manipulation
 
