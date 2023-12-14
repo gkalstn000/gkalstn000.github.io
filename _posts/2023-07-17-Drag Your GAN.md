@@ -260,3 +260,8 @@ MD (Mean Distance) score는 landmarks를 target poisition 으로 얼마나 잘 �
 * Social impacts
   * Could be misused to create fake pose, expression, shape.
 
+
+
+# 후속연구
+
+[DragDiffusion](https://arxiv.org/pdf/2306.14435.pdf)
