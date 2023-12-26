@@ -71,10 +71,10 @@ GPU 연결 방법
 ```bash
 #docker run -d -it --name {Container_Name} --gpus all -p {Host_Pnum}:{Container_Pnum} --mount type=bind,source={Host_workspace},target={Container_workspace} {Image_Name}:{Tag}
 
-docker run -d -it --name nted --gpus all --privileged -p 8088:8088 --mount type=bind,source=/home/minsu/docker_workspace/Neural-Texture-Extraction-Distribution,target=/root/nted heatonresearch/stylegan2-ada
+docker run -d -it --name nted --gpus all --privileged -p 8088:8088 --mount type=bind,source={SOURCE_PATH},target=/root
 
-docker start ailab
-docker attach ailab
+docker start CONTAINER_NAME
+docker attach CONTAINER_NAME
 ```
 
 ### Container bash 필요 라이브러리 설치
