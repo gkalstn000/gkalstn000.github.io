@@ -33,7 +33,28 @@ author: Haribo
 
 # 1. Introduction
 
+**Motivation**
 
+* 인터넷상 수십억개의 image-text 쌍 데이터셋으로 Text-to-Image(T2I) 모델은 비약적으로 발전.
+* 하지만 video-text 쌍 데이터셋은 많이 없어서 Text-to-Video(T2V) 모델은 발전이 더뎠음.
+* *이미 잘 학습된 T2I 모델을 활용해 T2V 모델을 만들면 어떨까?* 이게 저자들의 생각.
+  * T2V 모델을 처음부터 학습시키는 건 비효율적이다.
+  * 잘 학습된 T2I 모델을 활용하면 text label이 없는 video만으로도 unsupervised 방식으로 finetuning이 가능하다.
+
+**결론**
+
+* 한 줄의 텍스트로 긴 비디오를 설명하기엔 부족하지만, 짧은 비디오는 한 줄의 텍스트로도 충분하다.
+  * 관련 선행연구: image-based action recognition systems(Girish et al., 2020)
+* 기존 T2I 모델은 공간적 정보만 다루므로, 네트워크를 확장해 시간 정보도 다루는 spatial-temporal 네트워크를 구성했다.
+* 이를 통해 기존 T2I에서 새로운 T2V 네트워크로의 전환을 가능하게 했다.
+* Visual quality와 부드러움을 개선하기 위해 super-resolution 모델과 frame interpolation 모델도 추가로 학습했다.
+
+**Contribution**
+
+* 기존의 T2I 모델에 시공간연산 확장을 통해 효율적인 T2V 모델, Make-A-Video, 모델 제안.
+* text-image 를 활용했기 때문에 text-video 데이터셋이 필요없고, 대량의 unlabeled video 데이터셋으로 unsupervised training 가능.
+* User로부터 주어진 text 입력에 대해 최초로 시공간적을 고려한 super-resolution 방법 제안.
+* T2V 분야에서 quantitative, qualitative 평가에서 SOTA 달성.
 
 
 
