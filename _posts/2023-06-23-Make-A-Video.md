@@ -58,17 +58,63 @@ author: Haribo
 
 
 
+# 2. Method
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/293015208-39252387-9cbc-478d-b8ea-846a436d1202.png">     
+  </figure> 
+  <figcaption>Make-A-Video high-level architecture</figcaption>   
+</div>
 
 
 
+Make-A-Video는 3개의 main component로 구성되어 있음.
+
+1. Base T2I model trained on text-image pairs
+2. Spatiotemporal Convolution and Attention layers
+   * 일반 Diffusion 네트워크에 temporal dimension(연산 계층)을 확장한 연산 block
+3. Frame interpolation network
+
+Make-A-Video의 수식은 아래와 같이 정리된다:
+
+> $$
+> \hat{y}_t = SR_{h} \circ SR^{t}_{l} \circ \uparrow _{F}\circ D^{t} \circ P \circ (\hat{x}, C_{x}(x))
+> $$
+>
+> * $\hat{y}_t$ : Generated Video
+> * $SR_{h}, SR^{t}_{l}$: Spatial and spatiotemporal super-resolution networks
+> * $\uparrow _{F}$: Frame interpolation network
+> * $D^t$ spatiotemporal decoder
+> * $P$: Prior
+>   * Dalle2 와 비슷하게 $\hat{x}$ 와 $C_x(x)$ 를 condition으로 받아 image embed를 생성하는 일반적인 Diffusion model.
+>   * 여기에 temporal 연산이 가능하도록 내부의 conv, attn block을 확장.
+> * $\hat{x}$ : BPE-encoded text
+> * $C_x$: CLIP text encoder
+> * $x$: input text 
 
 
 
+## 2.1 Text-to-Image Model
+
+> Video를 학습하기 전, text를 받아 image를 생성할 수 있도록 학습을 시키는 과정.
+>
+> Image 생성 학습이 끝나면 그 능력을 그대로 video 생성쪽으로 전이 시키는 학습을 거침.
 
 
 
+$P$ (일반적인 Diffusion 모델)에 temporal component를 확장 시키기 전 text-image pair 데이터셋으로 학습 시킴.
 
+* CLIP 방식 참조
 
+텍스트로부터 high-resolution 이미지를 생성하기 위해 아래와 같은 과정을 사용
+
+1. Prior network $P$ 는 text embeddings $x_e$와 BPE encoded text tokens $\hat{x}$ 를 입력받아 image embeddings $y_e$ 를 생성
+   * $y_e = P(\hat{x}, x_e)$
+2. Decoder $D$ 는 $y_e$ 를 condition으로 low-resolution $64 \times 64$ RGB 이미지 $\hat{y}_l$ 을 생성.
+   * $\hat{y}_l = D(y_e)$
+3. Two super-resolution networks $SR_{h}, SR^{t}_{l}$ 는 $\hat{y}_l$ 의 해상도를 $256 \times 256$ 그리고 $768 \times 768$ 로 확장시켜 최종적으로 이미지 $\hat{y}$ 을 생성.
+   * $\hat{y} = SR_{h} \circ SR^{t}_{l} (\hat{y}_l)$
 
 
 
