@@ -16,7 +16,7 @@ author: Haribo
 
 ---
 
->* 선행 Text-to-Video 연구들은 다수의 video-text pair 데이터셋이 필요했으나, 사전학습 된 Diffusion 모델의 능력을 활용해 video-text 없이 video 데이터만을 활용해 고퀄리티 text-to-video 생성모델 학습 방식을 선보임. 
+>* 선행 Text-to-Video 연구들은 다수의 video-text pair 데이터셋이 필요했으나, 사전학습 된 Diffusion 모델의 능력을 활용해 video-text 데이터셋 없이 video 데이터셋만을 활용해 고퀄리티 text-to-video 생성모델 학습 방식을 선보임. 
 >* 4D 입력인 video 처리를 위해 Spatial/Temporal Convolution + Attention 연산을 활용.
 
 
@@ -273,9 +273,35 @@ Sec 2.2 에서 다룬 시공간 확장 외에 생성 된 비디오의 frame을 �
 
 $\uparrow _{F}$ 는 spatiotemporal decoder $D^t$ 를 masked frame interpolation task로 finetuning 해서 만든다.
 
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/293145087-ce6c2476-c46d-4ba0-9e2f-1c8d0cc3e1ca.png">     
+  </figure> 
+  <figcaption>Frame interpolation 설명파트 논문이 상당히 불친절하고 생략이 많아서 대충 그려봄.</figcaption>   
+</div>
 
+$fps$ token으로 masked 된 원본 frame을 reconstruction (BERT와 비슷) 하는 과정을 여러번 거쳐 샘플링 된 16 frame의 비디오에서 원본 길이의 frame 비디오를 생성 해냄.
+
+* 실험에서는 76 프레임이 원본 비디오 길이로 설정.
+
+
+
+실험에서 $\uparrow _{F}$  는 5 frame 씩 건너뛰며 $D^t$ 에 들어갔다가 $\uparrow _{F}$  에서 76개의 frame으로 생성됨.
+
+* $76 = ((16-1) \times 5 + 1 )$
 
 ## 2.4 Training
+
+Make-A-Video의 각 component 들은 독립적으로 각각 학습이 됨.
+
+* Prior $P$ : text를 입력으로 받는 diffusion 모델로 비디오에 대해서는 학습 시키지 않음
+* $D^t$ 와 $SR$ 2개 : 처음 이미지로 학습하고 그 다음 비디오에 대해 학습.
+
+각 component가 학습 되고 나면 새로운 temporal layers를 초기화 후 unlabeled video에 대해 fintuning 실시.
+
+원본 비디오에서 16개의 frame들이 random하게 샘플링 되고 각 frame 들은 노이즈가 칠해져서 (diffusion beta function) $D^t$에 들어간 뒤 $\uparrow _{F}$ 로 frame 수 늘려줌.
+
+
 
 # 3. Experiments
 
