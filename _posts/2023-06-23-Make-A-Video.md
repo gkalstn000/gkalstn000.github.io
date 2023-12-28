@@ -103,9 +103,9 @@ Make-A-Video의 수식은 아래와 같이 정리된다:
 
 
 
-$P$ (일반적인 Diffusion 모델)에 temporal component를 확장 시키기 전 text-image pair 데이터셋으로 학습 시킴.
+Prior $P$ (일반적인 Diffusion 모델)에 temporal component를 확장 시키기 전 text-image pair 데이터셋으로 학습 시킴.
 
-* CLIP 방식 참조
+* Dalle2 방식 [참조](https://arxiv.org/abs/2204.06125)
 
 텍스트로부터 high-resolution 이미지를 생성하기 위해 아래와 같은 과정을 사용
 
@@ -115,6 +115,189 @@ $P$ (일반적인 Diffusion 모델)에 temporal component를 확장 시키기 �
    * $\hat{y}_l = D(y_e)$
 3. Two super-resolution networks $SR_{h}, SR^{t}_{l}$ 는 $\hat{y}_l$ 의 해상도를 $256 \times 256$ 그리고 $768 \times 768$ 로 확장시켜 최종적으로 이미지 $\hat{y}$ 을 생성.
    * $\hat{y} = SR_{h} \circ SR^{t}_{l} (\hat{y}_l)$
+
+
+
+### 2.2 SpatioTemporal Layers
+
+
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/293116973-1ebde152-0cea-482d-a67e-200168b1d4dd.png">     
+  </figure> 
+  <figcaption>(왼)Pseudo-3D Conv (오)Pseudo-3D Attn</figcaption>   
+</div>
+
+
+
+Conv, Attn block들로 이루어진 UNet 구조의 Diffusion 모델에 temporal dimension을 확장하기 위해 Conv와 Attn에 modify를 해야한다.
+
+* fully-connect같은 기타 layer는 딱히 시간의 영향을 안받으므로 수정 안함.
+
+
+
+Temporal modification이 적용되는 모델들은 아래와 같음
+
+* Decoder $D^t$
+* Frame-interpolation $\uparrow _{F}$
+* Super-resolution networks $SR^t_l$
+
+
+
+이 때 $768 \times 768$ 해상도로 super-resolution 하는 $SR_h$ 의 경우 attention 메모리 부족 문제로 temporal 을 고려한 고해상도 확장은 적용되지 않음.
+
+
+
+### 2.2.1 Pseudo-3D Convolution Layers
+
+이미지와는 다르게 4D 사이즈 $(C, F, H, W)$를 가진 동영상을 처리하려면 3D-Conv 연산이 필요한데, 이는 상당한 연산량과 메모리를 요구한다. 이에 대한 해결책으로, [separable convolution](https://arxiv.org/abs/1610.02357)에서 영감을 받아 기존의 2D Conv 뒤에 1D Conv를 추가함으로써 temporal 연산을 포함한 Pseudo-3D Conv를 제안한다.
+
+게다가 기존 2D Conv에 1D Conv를 추가한 방식이라 pre-trained 된 (Sec.2.1) 기존 네트워크의 가중치를 그대로 활용할 수 있음.
+
+* 1D conv만 새롭게 init 하면 됨.
+
+
+
+```python
+    def forward(self, x, enable_time = True):
+        b, c, *_, h, w = x.shape # x 는 video or image
+
+        is_video = x.ndim == 5
+        enable_time &= is_video
+
+        if is_video:
+            x = rearrange(x, 'b c f h w -> (b f) c h w')
+
+        x = self.spatial_conv(x) # spatial_conv는 일반적인 2D conv
+
+        if is_video:
+            x = rearrange(x, '(b f) c h w -> b c f h w', b = b)
+
+        if not enable_time or not exists(self.temporal_conv):
+            return x
+
+        x = rearrange(x, 'b c f h w -> (b h w) c f')
+
+        x = self.temporal_conv(x) # temporal_conv 는 일반적인 1D conv
+
+        x = rearrange(x, '(b h w) c f -> b c f h w', h = h, w = w)
+
+        return x
+```
+
+
+
+> $Conv_{P3D} = Conv_{1D}(Conv_{2D}(h) \circ T ) \circ T$
+
+
+
+이런식으로 공간적으로 conv 연산을 한번 해준 뒤, $(B, H, W)$ 를 batch 로 묶어 1D Conv 연산을 해주면 Frame간 연산 (시간적 연산) 이 가능하다. 
+
+
+
+### 2.2.2 Pseudo-3D Attention Layers
+
+**Pseudo-3D Conv** 와 비슷하게 Attn 연산 또한 reshape를 통해 공간적/시간적 연산을 따로 진행한다. 이 때도 마찬가지로 시간적 연산을 진행할 때 새로 추가된 연산 block에 대해서만 init을 하기 때문에 기존 공간적 attention 가중치는 그대로 활용가능.
+
+```python
+ def forward(self, x, enable_time = True):
+        b, c, *_, h, w = x.shape
+        is_video = x.ndim == 5
+        enable_time &= is_video
+
+        if is_video:
+            x = rearrange(x, 'b c f h w -> (b f) (h w) c')
+        else:
+            x = rearrange(x, 'b c h w -> b (h w) c')
+
+        space_rel_pos_bias = self.spatial_rel_pos_bias(h, w) if exists(self.spatial_rel_pos_bias) else None
+
+        x = self.spatial_attn(x, rel_pos_bias = space_rel_pos_bias) + x
+
+        if is_video:
+            x = rearrange(x, '(b f) (h w) c -> b c f h w', b = b, h = h, w = w)
+        else:
+            x = rearrange(x, 'b (h w) c -> b c h w', h = h, w = w)
+
+        if enable_time:
+
+            x = rearrange(x, 'b c f h w -> (b h w) f c')
+
+            time_rel_pos_bias = self.temporal_rel_pos_bias(x.shape[1]) if exists(self.temporal_rel_pos_bias) else None
+
+            x = self.temporal_attn(x, rel_pos_bias = time_rel_pos_bias) + x
+
+            x = rearrange(x, '(b h w) f c -> b c f h w', w = w, h = h)
+
+        if self.has_feed_forward:
+            x = self.ff(x, enable_time = enable_time) + x
+
+        return x
+```
+
+
+
+* 공간적 attention: $(B, F) \; (H, W) \; C$ 에 대해 attention 연산.
+* 시간적 attention: $(B,H,W) \; F \; C$  에 대해 attention 연산.
+
+
+
+**Frame rate conditioning.**
+
+[CogVideo](https://arxiv.org/abs/2205.15868) 와 비슷하게 Frame condition parameter $fps$ 를 적용.
+
+* $fps$ : number of frames-per-second in generated video.
+
+다양한 frames-per-second를 조건으로 학습하면 inference시 추가적인 control이 가능하다.
+
+**Objectives**
+
+[Improved Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2102.09672)의 $hybrid$ loss 적용. (아래 수식에선 VLB 생략)
+
+> $$L_{decoder} = \mathbb{E}_{C_y(y_0), \epsilon, fps, t} \left [ \left\| \epsilon_t - \epsilon_\theta (z_t, C_y(y_0), fps, t) \right\|^2_s \right ]$$
+>
+> * $y$ : 입력 비디오
+> * $y_0$ : 입력 비디오의 첫 frame (이미지)
+> * $C_y(y_0)$ : $y_0$ 에 대한 CLIP image embedding
+> * $z_t$ : $y$ 에 $t$  시점의 noise 를 더한 input
+
+
+
+## 2.3 Frame Interpolation Network
+
+Sec 2.2 에서 다룬 시공간 확장 외에 생성 된 비디오의 frame을 늘리는 새로운 네트워크 $\uparrow _{F}$ 를 학습한다.
+
+* Frame interpolation: 더 부드러운 비디오 생성
+* Frame extrapolation: 기존 비디오 전/후 프레임 생성
+
+$\uparrow _{F}$ 는 spatiotemporal decoder $D^t$ 를 masked frame interpolation task로 finetuning 해서 만든다.
+
+
+
+## 2.4 Training
+
+# 3. Experiments
+
+## 3.1 Datasets and Settings
+
+## 3.2 Quantitative Results
+
+## 3.3 Qualitative Results
+
+# 4. Discussion
+
+ 
+
+
+
+
+
+
+
+
+
+
 
 
 
