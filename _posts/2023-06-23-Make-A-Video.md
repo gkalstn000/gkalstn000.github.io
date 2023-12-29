@@ -307,11 +307,158 @@ Make-A-Video의 각 component 들은 독립적으로 각각 학습이 됨.
 
 ## 3.1 Datasets and Settings
 
+**Training**
+
+* T2I
+  * LAION 2.3B dataset (Text-Image pair)
+  * Prior $P$, Decoder $D^t$, Super-resolution $SR^t_l$, $SR_h$ 
+* T2V
+  * WebVid-10M (Video dataset)
+    * Decoder $D^t$, Frame interpolation $\uparrow_F$
+  *  HD-VILA-10M (Video dataset)
+    * Super-resolution $SR^t_l$
+
+선행 T2V 연구들인 [CogVideo](https://arxiv.org/abs/2205.15868), [VDM](https://arxiv.org/abs/2204.03458) 는 비공개 video-text pair 데이터셋으로 학습 진행했으나, Make-A-Video는 open dataset으로 학습 진행.
+
+**Evaluation**
+
+학습 때 사용되지 않은 template sentence를 선정.
+
+* [UCF-101](https://www.crcv.ucf.edu/data/UCF101.php)
+  * Action recognition 데이터셋으로 각 클래스마다 한 문장씩 평가용 sentence 로 세팅
+  * Eval metric
+    * Frechet Video Distance (FVD)
+    * Inception Score (IS)
+* [MSR-VTT](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/06/cvpr16.msr-vtt.tmei_-1.pdf)
+  * Microsoft Research Video to Text 데이터 셋으로 영상 하나에 다양한 문장들이 존재함.
+  * Eval metric
+    * Frechet Inception Distance (FID)
+    * CLIPSIM (average CLIP similarity between text and video frames)
+* Amazon Mechanical Turk (AMT)
+  * Human evaluation 으로 300개의 prompts를 구성
+  * 5개의 카테고리 (동물, 판타지, 인물 등등)에 대해 평가진행.
+* DrawBench prompts from Imagen (Video gen에 많이 사용되는 벤치마크 prompt)
+  * Human evaluation으로 video quality와 text faithfulness를 각각 평가.
+
 ## 3.2 Quantitative Results
+
+**Automatic Evaluation on MSR-VTT**
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/293313549-69f77fc3-ec3d-4b58-9908-671839137df0.png">     
+  </figure> 
+</div>
+
+* CogVideo와 Make-A-Video의 경우 각 prompt에 대해 zero-shot 세팅을 진행
+* 선행 연구들은 모두 매우 짧은 16 frame 동영상만 생성 가능하기에 Make-A-Video 또한 $16 \times 256 \times 256$ 사이즈의 동영상만 생성.
+* Make-A-Video는 zero-shot임에도 불구하고 MSR-VTT에서 학습 된 GODIVA 와  NUWA보다 좋은 성능을 보임.
+* 또한 SOTA인 CogVideo 보다 더 좋은 일반화 성능을 보여줌.
+
+**Automatic Evaluation on UCF-101**
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/293314534-cd59d501-ee34-4464-80b2-1938f9c92991.png">     
+  </figure> 
+</div>
+
+UCF-101은 비디오 생성 분야에서 유명한 벤치마크로 최근 T2V 모델 평가에 많이 사용됨. 
+
+* CogVideo UCF-101 데이터셋에 fine-tuning 후 class-conditional 비디오 생성 된 상태.
+* VDM은 unconditional 비디오 생성이지만 UCF-101 데이터셋으로 학습 된 상태.
+* Make-A-Video는 zero-shot 및 fine-tuning 세팅에 대해 평가 진행
+* zero-shot 성능자체가 이미 UCF-101 데이터셋으로 학습 된 다른 연구들의 성능을 거의 뛰어넘음.
+* Fine-tuning 세팅에선 SOTA 달성.
+
+**Human Evaluation**
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://user-images.githubusercontent.com/26128046/293315507-266ee28e-2651-46eb-bfef-83784f841ce7.png">     
+  </figure> 
+</div>
+
+* 공개된 zero-shot T2V 모델인 CogVideo 와 비교
+* DrawBench 와 자체 테스스세트에서 평가.
+* [VDM 웹페이지](https://video-diffusion.github.io/) 에 게시된 28개의 비디오에 대해 추가로 평가.
+  * VDM에 유리함.
+* 각 prompt에 대해 무작위 8개의 비디오 생성 후 8회에 걸쳐 평가결과의 평균치 기록.
+  * $76 \times 256 \times 256$ 해상도 비디오 생성.
+* Make-A-Video는 비디오 품질 및 Text-Video faithfulness에 대해 모든 벤치마크와 비교에서 더 나은 성능.
+
+
+
+**Frame interpolation 평가**
+
+실험 결과는 없고 말로만 쓰여있음.
+
+* FILM과 비교하여 자체 frame interpolation 네트워크를 평가.
+* DrawBench와 자체 평가 세트에서 텍스트 프롬프트를 기반으로 1 FPS의 저 프레임 비디오를 생성한 후, 각 방법을 사용하여 4 FPS로 업샘플링.
+* 평가자들은 자체 평가 세트에서 62%, DrawBench에서 54%의 비율로 더 현실적인 움직임을 보여주는 자체 방법을 선택.
+* Make-A-Video는 객체가 현실세계에서 가지는 움직임에 대한 지식이 훨씬 더 뛰어나다는 것을 나타냄.
+
+
 
 ## 3.3 Qualitative Results
 
+다양한 실험 결과 프로젝트 블로그 [주소](https://makeavideo.studio/)
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://makeavideo.studio/assets/similarvid2input.webp">     
+  </figure> 
+  <figcaption>원본.</figcaption>  
+</div>
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://makeavideo.studio/assets/similarvid2c.webp">     
+  </figure> 
+  <figcaption>생성1.</figcaption>  
+</div>
+
+
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://makeavideo.studio/assets/i2vpair1.png">     
+  </figure> 
+  <figcaption>이미지 2개 interpolation.</figcaption>  
+</div>
+
+<div style="text-align: center;">   
+  <figure>     
+    <img src="https://makeavideo.studio/assets/i2vpair1.webp">     
+  </figure> 
+  <figcaption>이미지 2개 interpolation.</figcaption>  
+</div>
+
 # 4. Discussion
+
+1. **인간 지능의 모방**:
+   - 인간 지능의 가장 큰 장점 중 하나는 주변 세계로부터 배우는 능력이다.
+   - 사람, 장소, 물건, 행동을 관찰을 통해 빠르게 인식하듯, 생성 시스템도 인간의 학습 방식을 모방하면 더 창의적이고 유용해질 수 있다.
+2. **비지도 학습과 동영상 데이터의 활용**:
+   - 대규모 비디오 데이터를 사용한 비지도 학습은 연구자들이 라벨링된 데이터에 대한 의존성에서 벗어나는 데 도움이 된다.
+   - 라벨링된 이미지와 라벨 없는 비디오를 효과적으로 결합함으로써 이를 달성할 수 있음을 보여줌.
+3. **기술적 한계 및 향후 계획**:
+   - 현재 접근 방식은 텍스트와 비디오에서만 추론될 수 있는 현상 사이의 연관성을 학습하지 못한다.
+   - 향후 작업으로는 왼쪽에서 오른쪽으로 손을 흔드는 사람과 같은 비디오를 생성하는 방법, 더 긴 비디오 생성, 여러 장면과 이벤트를 포함한 더 자세한 스토리를 묘사하는 방법 등을 고려 중.
+4. **사회적 편향 및 윤리적 고려 사항**:
+   - 웹 데이터로 훈련된 대규모 모델들은 사회적 편견을 학습하고 과장할 수 있으며, 해로운 것을 포함할 수 있다.
+
+
+
+# 5. 개인 리뷰
+
+논문 비약과 생략이 너무 많아서 간단하지만 생각보다 읽기는 어려웠음.
+
+학습 할 때 비디오의 첫 프레임에 대한 것을 기반으로 text-prompt 및 image embedding을 진행하기 때문에 장면이 확 바뀌거나 영상 내부 복잡한  semantic이 존재하는 주제에 대해서는 비디오 생성을 하기 힘들 듯하다.
+
+* 다 좋았지만 이 부분이 제일 아쉬웠던 부분.
+
+[ControlNet](https://github.com/lllyasviel/ControlNet) 과 결합한다면 훨씬 더 복잡하고, 다양성 있는 비디오 생성이 가능할 것 같은 생각이 들었음.
 
  
 
