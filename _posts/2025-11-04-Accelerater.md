@@ -16,6 +16,11 @@ author: Haribo
 처음 세팅할 때 `accelerater config` -> 코드 내부에 다양한 accelerater 함수들 (unwrap, log, prepare 등등) -> 그리고 python 실행할 때 쓰는 accelerater 옵션들 (--mix-precision 같은거).  
 `kohya-ss` 이 사람 코드 기준으로 하나하나 알아보려고 한다.
 
+
+
+
+
+
 # 1. 설치 및 세팅
 처음 `accelerater` 설치 후 config 세팅
 
