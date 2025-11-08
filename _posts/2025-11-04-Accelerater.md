@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Accelerater 테이크 다운 (1편)"
+title:  "Accelerater 테이크 다운 (1편, 세팅 및 학습 가속)"
 categories: 실습
 date: 2025-11-04 11:40:18 +0900
 tags: AI Optimizer 학습 training
@@ -225,5 +225,4 @@ CPU가 여러 개(2개 이상) 달린 서버에서 각 GPU가 가까운 CPU 메�
 | **Torch Dynamo**  | 속도 향상, 코드 수정 불필요 | 첫 실행 지연, VRAM 추가 사용, 동적 구조에 약함 | 단일 GPU·고정 해상도 학습 |
 | **NUMA Efficiency** | CPU–GPU 데이터 이동 지연 감소, 데이터 로딩 효율 향상 | Multi-CPU 리눅스 전용 | 다중 CPU 소켓 서버(워크스테이션·GPU 서버) |
 
-
- 
+[2편]({% post_url 2025-11-08-Accelerater %})에 계속
