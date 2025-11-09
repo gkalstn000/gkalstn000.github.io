@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Accelerater 테이크 다운 (1편, 세팅 및 학습 가속)"
+title:  "Accelerater 풀 스파링 (1편, 세팅 및 학습 가속)"
 categories: 실습
 date: 2025-11-04 11:40:18 +0900
 tags: AI Optimizer 학습 training

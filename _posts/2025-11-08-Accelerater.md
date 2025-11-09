@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Accelerater 풀 스파링 (2편, 분산학습)"
+title:  "Accelerater 테이크 다운 (2편, 분산학습)"
 categories: 실습
 date: 2025-11-08 11:40:18 +0900
 tags: AI Optimizer 학습 training
@@ -25,6 +25,10 @@ author: Haribo
 | Multi-Node (분산 학습)| GPU 여러 개가 여러 서버(노드) 에 흩어져 있음 |
 |FSDP / ZeRO (DeepSpeed)| 모델, 그래디언트, 옵티마이저를 GPU 간 분할 저장  |
 |Hybrid Parallel| 위 병렬 방식을 혼합  |
+
+
+
+
 
 
 ## 1. Multi-Node, DDP(Distributed Data Parallel) 
@@ -63,9 +67,6 @@ accelerate 세팅은 `accelerate config` 에서 하든, 코드 내부에서 `acc
 - Do you wish to use mixed precision?: bf16 
 - What is the main process IP? : 1.1.1.1
 - What is the main process port? : 29500
-
-
-# 세팅 각 서버에서 랭크 다르게 한 뒤, 각 서버에서 실행
 accelerate launch train.py ...
 ```
 
@@ -78,14 +79,12 @@ accelerate launch \
   --main_process_ip 1.1.1.1 --main_process_port 29500 \
   --mixed_precision bf16 \
   train.py --your_args ... 
-
 # 2번 컴퓨터
 accelerate launch \
   --multi_gpu --num_machines 3 --machine_rank 1 \
   --main_process_ip 1.1.1.1 --main_process_port 29500 \
   --mixed_precision bf16 \
   train.py --your_args ... 
-
 # 3번 컴퓨터
 accelerate launch \
   --multi_gpu --num_machines 3 --machine_rank 2 \
@@ -110,6 +109,7 @@ accelerator = Accelerator(kwargs_handlers=handlers)
 그리고 실행시 반드시 `accelerator.prepare`로 감싸주어야하는데, 이제 이게 뭐하는 건지 이해가됨.  
 그리고 log나 wandb로 보낼 때는 `accelerator.is_main_process` 로 걸러내서 진행 하는데 이것도 로그 출력시킬 때 main만 하도록 해야할듯. 
 * 전체 속도는 가장 느린 GPU에 맞춰진다.
+
 ```python
 from accelerate import Accelerator
 
@@ -164,7 +164,6 @@ accelerate config
 # → Distributed type: DEEPSPEED
 # → DeepSpeed config file: ./ds_config.json
 # → 나머지는 DDP랑 동일하게 설정 후 accelerate.prepare로 감싸준다.
-
 #ds_config.json 예시
 {
   "zero_optimization": {
@@ -192,7 +191,7 @@ accelerate config
 아래처럼 Diffusion 학습할 때 로스 등락이 거의 개잡주 횡보장처럼 나올 때가 많은데 (timestep별로 loss차이가 큼), 이 때 batch가 좀 컸으면 학습이 더 안정될텐데 라고 생각한 적이 많았음....  
 Multi-Node 환경이 가능할 때 한번 해봐야겠다.
 
-![FLUX-Dev Omini-Control Loss](https://github-production-user-asset-6210df.s3.amazonaws.com/26128046/511807449-6c965b8e-c682-4942-b4f0-800b085c812e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20251109%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251109T124444Z&X-Amz-Expires=300&X-Amz-Signature=50fd2511fa61085e5dd5ec6178c66b8c56ee4a6d8ccb95842d2615abd8e23151&X-Amz-SignedHeaders=host)
+![FLUX-Dev Omini-Control Loss](https://github-production-user-asset-6210df.s3.amazonaws.com/26128046/511807449-6c965b8e-c682-4942-b4f0-800b085c812e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20251109%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251109T133923Z&X-Amz-Expires=300&X-Amz-Signature=c58fa789c581bedd82e9b5dd59d749940151c910c9741b4d63444792b08d12b8&X-Amz-SignedHeaders=host)
 
 ## 3. Model Parallel & Pipeline Parallel
 모델을 여러 GPU에 분할해 한 번의 forward를 나눠 처리가 목적(VRAM 절약). 속도는 GPU 간 텐서 이동 때문에 느려진다 (물론 안써봄).  
@@ -331,3 +330,6 @@ accelerate launch \
 한 레이어 내부 연산을 여러 GPU가 나눠 처리할 정도로 엄청 큰 규모의 모델에서 쓰인다. 솔직히 이건 쓸일 없을듯 해서 넘어간다. 
 
 마지막 accelerate 포스트인, 각종 accelerate 함수 unwarp, prepare 등등을 봐야겠다.
+
+[3편]({% post_url 2025-11-10-Accelerater %})에 계속
+ 
