@@ -191,7 +191,7 @@ accelerate config
 아래처럼 Diffusion 학습할 때 로스 등락이 거의 개잡주 횡보장처럼 나올 때가 많은데 (timestep별로 loss차이가 큼), 이 때 batch가 좀 컸으면 학습이 더 안정될텐데 라고 생각한 적이 많았음....  
 Multi-Node 환경이 가능할 때 한번 해봐야겠다.
 
-![FLUX-Dev Omini-Control Loss](https://github-production-user-asset-6210df.s3.amazonaws.com/26128046/511807449-6c965b8e-c682-4942-b4f0-800b085c812e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20251109%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251109T133923Z&X-Amz-Expires=300&X-Amz-Signature=c58fa789c581bedd82e9b5dd59d749940151c910c9741b4d63444792b08d12b8&X-Amz-SignedHeaders=host)
+![FLUX-Dev Omini-Control Loss](https://private-user-images.githubusercontent.com/26128046/512207253-8f036790-4395-4c3e-a556-5b7100735026.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjI3ODUxNDYsIm5iZiI6MTc2Mjc4NDg0NiwicGF0aCI6Ii8yNjEyODA0Ni81MTIyMDcyNTMtOGYwMzY3OTAtNDM5NS00YzNlLWE1NTYtNWI3MTAwNzM1MDI2LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMTAlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTEwVDE0MjcyNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTVhMmUwNDkyNTYxZjc3OTgzOWM2OTU4Mjk5MjNhMWE4OTg4OGY2NDc3NTcxMjBhZmFjOWZkNDk2OGMyOWMwY2EmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.D3mihbKJuBMB1XAqoZG7yBq_JNhIs1Fasp5VLGsAkdY)
 
 ## 3. Model Parallel & Pipeline Parallel
 모델을 여러 GPU에 분할해 한 번의 forward를 나눠 처리가 목적(VRAM 절약). 속도는 GPU 간 텐서 이동 때문에 느려진다 (물론 안써봄).  
