@@ -277,7 +277,7 @@ def prepare_deepspeed_plugin(args: argparse.Namespace):
 
 dynamo_backend = "NO"
 if args.torch_compile:
-    dynamo_backend = args.dynamo_backend
+    dynamo_backend = args.dynamo_backend # "inductor" if args.torch_compile else "NO"
 deepspeed_plugin = prepare_deepspeed_plugin(args)
 accelerator = Accelerator(
     ...
