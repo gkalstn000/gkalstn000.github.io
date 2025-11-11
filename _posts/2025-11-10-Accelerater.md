@@ -308,4 +308,198 @@ accelerator = Accelerator(dynamo_plugin=dynamo_plugin)
 
 ---
 
+# 2. 학습 때 accelerate
 
+## 2.1 Main process 구별
+분산 학습을 할 때 그냥 logger, print, wandb로 토스를 해버리면 분산개수많큼 중복으로 처리를 해버린다.  
+
+```python
+is_main_process = accelerator.is_main_process
+if is_main_process :
+    something~~
+```
+
+그래서 보통 위와 같이 구별해야할 때 이런식으로 처리를 하는데 분산학습 관련 accelerate 기능들을 정리해봤다.
+
+| API                                | 의미 | 언제 쓰나                                              |
+|------------------------------------|------|----------------------------------------------------|
+| accelerator.is_main_process        | 전 클러스터에서 rank==0 | 전역 로그, 체크포인트 저장, W&B 초기화 등 한 번만 해야 할 작업            |
+| accelerator.print(...)             | 기본 전역 메인만 출력 | 중복 로그 방지                                           |
+| accelerator.device                 | 이 프로세스가 쓸 torch.device | 메인 여부와 무관                                          |
+| accelerator.is_local_main_process  | 각 노드별 로컬 rank==0이면 True | 노드 로컬 캐시 생성, 노드별 로그 파일 등 “노드마다 한 번만” 해야 할 작업에 사용.  |
+
+아래는 내가 안써본 것들 (분산쪽)
+
+| API | 의미 | 언제 쓰나 |
+|-----|------|-----------|
+| accelerator.is_local_main_process | 각 노드(머신)에서 local_rank==0 | 노드별 파일 캐시 생성, 노드 로컬 로그 남길 때 |
+| accelerator.process_index | 전역 rank (0..world_size-1) | 프로세스별 분기 처리 |
+| accelerator.local_process_index | 노드 내 로컬 rank (0..local_size-1) | 노드 내 분기 처리 |
+| accelerator.num_processes | 전역 world size | 유효 배치 계산 등 |
+| accelerator.local_num_processes | 노드당 프로세스 수 | 노드별 리소스 계산 |
+| accelerator.main_process_first() | 컨텍스트 매니저. 메인이 먼저 실행, 나머지는 대기 | 데이터 다운로드, 디렉터리 생성 순서 보장 |
+| accelerator.local_main_process_first() | 노드별 메인이 먼저 실행 | 멀티노드에서 노드별 준비 작업 |
+
+`device` 바꿀 때도, 출력할 때도 그냥쓰면 안되고 accelerator가 주는대로 해줘야한다.
+
+## 2.2 Model 관련
+#### accelerator.unwrap_model(model) <- 진짜 많이 쓰임
+* DDP/FSDP/DeepSpeed로 감싸진 래퍼를 벗겨 원본 nn.Module을 반환.
+* 체크포인트 저장·가중치 직접 접근 전에 필수.
+
+`unwrap` 하고나서 보통 sampling, 가중치 저장을 한다.
+
+
+## 2.4 학습 관련
+#### accelerator.accumulate
+배치크게 뻥튀기 하는 용도. accumulate 스텝만큼 loss를 계산하여 한번에 업데이트.  
+속도는 느려지지만 학습 안정화를 위해 필수
+```python
+# accumulate step 정의
+Accelerator(
+    gradient_accumulation_steps=args.gradient_accumulation_steps,
+    ...
+)
+...
+for step, batch in enumerate(dl):
+    with accelerator.accumulate(model):
+        out = model(**batch)
+        loss = out.loss
+        accelerator.backward(loss)
+        optimizer.step(); optimizer.zero_grad()
+```
+
+#### accelerator.sync_gradients
+accelerator.accumulate 안에서만 쓸 수 있음. accumulate에서 마지막 gradient 동기화 끝나고 뭔가를 해야할 때 얘 걸어놓고 쓴다.  
+```python
+with accelerator.accumulate(model):
+    ...
+    if accelerator.sync_gradients:
+        accelerator.log({"loss": loss.item()}, step=global_step)
+```
+#### accelerator.backward
+그냥 loss.backward() 대신 쓰는 버전. 자동으로 mixed precision(fp16/bf16) 이나 분산학습 환경에 맞게 동작시켜줌.
+
+
+#### accelerator.clip_grad_norm_
+gradient norm 클리핑 유틸로 래핑된 모델에서도 바로 사용 가능. 보통 `max_norm = 1`, `max_norm = 0.5` 많이 씀.
+```python
+with accelerator.accumulate(model):
+    ...
+    accelerator.backward(loss)
+    accelerator.clip_grad_norm_(model.parameters(), max_norm=1.0)
+    optimizer.step(); optimizer.zero_grad()
+```
+#### accelerator.wait_for_everyone
+모든 분산 프로세스가 여기까지 도달할 때까지 기다림. 모델 저장이나 평가 전에 씀.  
+안쓰면 레이스·불일치·가끔 데드락 난다. 학습 자체는 돈다. “공유 작업” 앞뒤에서만 필수.
+```python
+accelerator.wait_for_everyone()
+if accelerator.is_main_process:
+    accelerator.save(...)
+
+...
+accelerator.wait_for_everyone()
+optimizer.eval()
+
+```
+#### accelerator.autocast
+쓰면 매우 편함. 굳이 데이터셋 type 안바꿔도됨.  
+다만 device는 자동으로 안바꿔주니까 수동으로 해야함.
+```python
+accelerator = Accelerator(
+    mixed_precision=args.mixed_precision,
+...
+)
+with torch.set_grad_enabled(is_train), accelerator.autocast():
+    out = model(**batch)
+    loss = loss_fn(out, target)
+accelerator.backward(loss)
+
+# 혹은 아래처럼 샘플링
+with accelerator.autocast(), torch.no_grad():
+    sample = sampling(model, *batch)
+```
+## I/O 관련
+#### accelerator.register_save_state_pre_hook & accelerator.register_load_state_pre_hook
+만약 foundation 모델에 adapter (LoRA, ControlNet 등등) 붙여서 학습했을 때,  모델 저장/로드는 adapter 만 필요하므로 state 저장 전에 저장/로드 할 것들 전처리 해줄 때 쓰인다.  
+
+```python
+def save_model_hook(models, weights, output_dir):
+    # pop weights of other models than network to save only network weights
+    # only main process or deepspeed https://github.com/huggingface/diffusers/issues/2606
+    if accelerator.is_main_process or args.deepspeed:
+        remove_indices = []
+        for i, model in enumerate(models):
+            if not isinstance(model, type(accelerator.unwrap_model(training_model))):
+                remove_indices.append(i)
+        for i in reversed(remove_indices):
+            if len(weights) > i:
+                weights.pop(i)
+        # print(f"save model hook: {len(weights)} weights will be saved")
+
+    # save current ecpoch and step
+    train_state_file = os.path.join(output_dir, "train_state.json")
+    # +1 is needed because the state is saved before current_step is set from global_step
+    logger.info(
+        f"save train state to {train_state_file} at epoch {current_epoch.value} step {current_step.value + 1}")
+    with open(train_state_file, "w", encoding="utf-8") as f:
+        json.dump({"current_epoch": current_epoch.value, "current_step": current_step.value + 1}, f)
+
+steps_from_state = None
+
+def load_model_hook(models, input_dir):
+    # remove models except network
+    remove_indices = []
+    for i, model in enumerate(models):
+        if not isinstance(model, type(accelerator.unwrap_model(training_model))):
+            remove_indices.append(i)
+    for i in reversed(remove_indices):
+        models.pop(i)
+    # print(f"load model hook: {len(models)} models will be loaded")
+
+    # load current epoch and step to
+    nonlocal steps_from_state
+    train_state_file = os.path.join(input_dir, "train_state.json")
+    if os.path.exists(train_state_file):
+        with open(train_state_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        steps_from_state = data["current_step"]
+        logger.info(f"load train state from {train_state_file}: {data}")
+
+accelerator.register_save_state_pre_hook(save_model_hook)
+accelerator.register_load_state_pre_hook(load_model_hook)
+
+...
+# 저장할 때
+accelerator.save_state(state_dir, args=args, accelerator=accelerator)
+# 로드할 때
+accelerator.load_state(state_dir)
+```
+
+#### accelerator.save_state
+분산 안전 체크포인트 저장. 가중치 뿐만 아니라 옵티마이저, 스케줄러, AMP 스케일러, RNG 상태 등을 랭크0 기준으로(또는 샤딩 방식에 맞게) 디스크에 씀. DeepSpeed/FSDP도 맞춰 저장.
+```python
+save_dir = f"ckpts/step_{step}"
+accelerator.save_state(save_dir)
+accelerator.wait_for_everyone()  # 다른 랭크 동기화
+```
+
+
+
+## 2.3 log 관련
+
+#### accelerator.trackers & accelerator.log
+accelerator 에 넣어 둔 로깅 라이브러리 불러오거나, log 기록할 때 쓰임
+```python
+logs = {"avr_loss": avr_train_loss} 
+accelerator.log(logs, step=global_step)
+```
+그냥 사전에 key-val 박아두면 알아서 해준다. 다만, 이미지 오디오 같은 특수한 결과값은 tracker 뽑아온 뒤 각 tracker에 맞게 후처리 해준 다음에 넣어줘야함.  
+```python
+wandb_tracker = accelerator.get_tracker("wandb")
+wandb_tracker.log({f"sample_{enum}": wandb.Image(image, caption=prompt)}, commit=False)  # positive prompt as a caption
+```
+
+공부하고 나서 보니 코드 개판인 부분이 있어서 고쳐놔야겠다.  
+이것으로 accelerate 해체쇼를 마친다.
