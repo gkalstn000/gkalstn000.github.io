@@ -398,4 +398,75 @@ optimizer = Lion(
 
 ## Prodigy Optimizer
 이새기 공부하려고 여기까지 돌아왔음.  
-LoRA 기준으로 rank, alpha, 붙이는 부위, 가중치 초기화에 따라 lr이 다 달라짐. 특히 LoRA에 kaming 초기화 해주면 lr이 너무 커져서 기존 모델 능력을 아예 박살 내버림.  
+LoRA 기준으로 rank, alpha, 붙이는 부위, 가중치 초기화에 따라 lr이 다 달라짐. 특히 LoRA에 kaming 초기화 해주면 lr이 너무 커져서 기존 모델 능력을 아예 박살 내버림.
+
+![prodigy 차이](/images/ai_techs/prodigy_diff.png)
+
+따라서 lr이 업데이트 되고, 멈추는 의미를 알아야함.
+
+Prodigy: “학습률을 사람이 정하지 않아도, 모델 스스로 lr의 크기를 추정해서 알아서 적절하게 쓴다.”  
+
+Adam의 특징
+* Adam은 “gradient의 기울기 모양”만 보고 lr 스케일 조절
+* 하지만 “문제가 얼마나 어려운지(스케일)”은 모름
+* 그래서 사람이 lr=1e-3, 2e-4, 1e-4 이런걸 맞춰줘야 함
+
+Prodigy의 특징
+* 파라미터가 최적에서 얼마나 멀리 있는지를 매 스텝 추정해서 적절한 lr을 자동으로 조절
+* lr을 세팅해줄 필요가 거의 없음
+
+최적까지 거리 추정은 **gradient의 크기 변화를 보고 D라는 “최적해까지 거리”를 추정한 뒤, D로 learning rate scaling** 한다고 함.  
+
+$$
+\begin{align}
+g_k &\in \partial f(x_k) \\[4pt]
+m_{k+1} &= \beta_1 m_k + (1-\beta_1)\, d_k\, g_k \\[4pt]
+s_{k+1} &= \beta_2 s_k + (1-\beta_2)\, d_k^2\, g_k^2 \\[4pt]
+r_{k+1} &= \sqrt{\beta_2}\, r_k 
+          + (1-\sqrt{\beta_2})\, \gamma_k d_k^2 \,\langle g_k,\; x_0 - x_k \rangle \\[4pt]
+s_{k+1} &= \sqrt{\beta_2}\, s_k 
+          + (1-\sqrt{\beta_2})\, \gamma_k d_k^2 \, g_k \\[4pt]
+\hat d_{k+1} &= \frac{r_{k+1}}{\lVert s_{k+1}\rVert_1} \\[4pt]
+d_{k+1} &= \max\bigl(d_k,\; \hat d_{k+1}\bigr) \\[4pt]
+x_{k+1} &= x_k - \gamma_k\, d_k\,
+          \frac{m_{k+1}}{\sqrt{s_{k+1}} + d_k \varepsilon}
+\end{align}
+$$
+
+Adam과 비슷한데 $d_k, r_k$ 가 추가됨. 이는 현재 파라미터와 최적 파라미터 사이의 거리 추정값으로 이걸로 lr 스케일을 자동 조절해준다.
+
+* $m_k$: Adam의 1차 모멘텀 (gradient 평활화)
+* $v_k$: Adam의 2차 모멘텀 (grad² 평활화, RMS scaling)
+* $d_k$: 현재 최적해까지의 “거리(scale)” 추정값 → lr 자동 조절 핵심
+* $r_k, s_k$: $d_k$를 추정하기 위한 보조 통계량 (거리 예측용)
+
+장점
+* lr 거의 자동 (제일 위 plot 참고)
+* AdamW 수준의 성능
+* GAN/LoRA/ViT 등 다양한 모델에서 잘 작동
+* Diffusers DreamBooth의 공식 추천 optimizer 중 하나
+
+단점
+* 아직 실무 커뮤니티 adoption은 Adam/Lion보다 낮음
+
+직접쓰면서 궁금했던 부분
+1. $d_t$가 올라가기만 하고 안줄어듬
+* 설계적으로 비감소(max)로 되어 있음 → 안전한 최대 lr 찾기용
+
+2. 설정 따라 $d_t$ 곡선이 다르게 나오는 이유
+* $d_t$는 모델 scale, gradient scale을 반영
+* 초기화, LoRA rank/alpha, target modules 등에 따라 scale이 달라짐
+
+3. $d_t$ 상승 멈추는 순간
+* “이 문제에서 사용할 수 있는 적정 learning rate 스케일 찾음”
+* lr warmup 끝났다는 신호
+
+4. lr이 작게 잡힌 의미
+* 어차피 gradient 크기 자체가 작으니까 좀 더 크게 step 밟아도 폭주하지 않는다
+* LoRA rank가 낮으면 trainable weight 스케일이 극도로 작음, alpha scaling도 작으면 gradient도 작음 -> 이건 큰 lr로 가도 안 터지네, 더 키우자
+
+### My 실험 내용 해석
+* LoRA weight scale이 작을수록(= rank 낮을수록, normal init일수록, attn-only일수록) gradient가 작아진다.
+* Prodigy는 gradient가 작으면 **“더 크게 가도 안전하다”** 고 판단해서 $d_t$(=lr 스케일)을 급격히 키운다.
+* 그래서 LoRA 8/1, normal init, attn-only처럼 trainable weight가 작은 설정에서는 lr 상승이 빠르고 최종 plateau 값도 크다.
+* 반대로 rank 큰 LoRA, 전체 LoRA 적용, scale 큰 초기화 같은 설정에서는 gradient가 상대적으로 커서 lr 상승이 느리고 plateau도 낮게 형성된다.
