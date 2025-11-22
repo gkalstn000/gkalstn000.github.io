@@ -121,6 +121,281 @@ $$
 Momentum 처럼 자주 활용되는 파라미터놈을 EMA로 처리해준다.
 
 ## 5. Adam (2015)
-## 6. AdamW (2017)
+Momentum + RMSProp를 합친 구조다.
+* 1차 모멘텀 $m_t$: gradient의 EMA → (방향 + 관성)
+* 2차 모멘텀 $s_t$: gradient²의 EMA → (파라미터 업데이트 강도 조절)
 
-# 최신 기법 (adafactor, adamW8bit, prodigy, Lion 등)
+SGD -> momentum -> RMS 이렇게 순차적으로 보니까 이제 이해가 됨.  
+
+$$
+g_t = \nabla L(w_t)  \\
+m_t = \beta_1 m_{t-1} + (1 - \beta_1)\, g_t  \\
+s_t = \beta_2 s_{t-1} + (1 - \beta_2)\, g_t^2
+$$
+
+보통 $\beta_1 = 0.9, \beta_2 = 0.999$ 을 둔다.
+
+파라미터 업데이트
+
+$$
+w_{t+1} = w_t - \frac{\eta}{\sqrt{s_t} + \epsilon}\, m_t  \\
+$$
+
+근데 여기서 사실 이렇게 업데이트 하지않고 어려운 부분이 등장함. $m_t, s_t$ 를 곧바로 쓰지 않고  
+
+$$
+\hat{m}_t = \frac{m_t}{1 - \beta_1^t}  \\
+\hat{s}_t = \frac{s_t}{1 - \beta_2^t}  \\
+w_{t+1} = w_t - \frac{\eta}{\sqrt{\hat{s}_t} + \epsilon}\, \hat{m}_t
+$$
+
+이렇게 한스텝 꼬아주는데, 이부분에서 좀 막혔음.  
+문제의 출발점은 $m_0 = 0, s_0 = 0$ 으로 시작할 때 발생함.  
+초기 $m_t$ 를 살펴보면
+* $m_1 = 0.1 g_1$ (원래 gradient의 10%)
+* $m_2 = 0.9 m_1 + 0.1 g_2$ (저장된 gradient의 9% + 원래 그래디언트의 10%)
+
+초기 몇 스텝 동안 $m_t$는 실제 gradient 평균보다 훨씬 작은 값이고, $s_t$는 $β_2 = 0.999$ 라 더 심각함.
+
+* m_t 작음
+* $s_t$ 더 작음 → $\sqrt{s_t}$ 더더 작음
+* 너무 작아져서 update 폭이 지나치게 커질 수 있음
+즉, 
+* $m_t$는 너무 작아서 “방향” 정보 약해짐
+* $s_t$는 더 작아서 lr가 미쳐 날뛸 수 있음
+
+초기에는 EMA가 불안정하게 학습을 유도해버림. 이 원인은 바로 **$m_0, s_0$ 을 0으로 박아놓으면서 생긴 문제**임.  
+우리가 차트를 볼 때도 지수평균 5일선, 20일선 등등 `시작 가격 ~ 오늘가격`에서 계산하을지 초기값을 0원으로 박아놓고 시작은 하지 않는다.  
+* 물론 학습에서는 첫 gradient 방향, 첫 파라미터 스케일을 알 수 없기에 0으로 놓아야하지만...
+
+그렇기에 이 Bias를 보정해주어여하며, 이거는 원래 통계할 때 `EMA`파트에서 배웠던 거였다 (다 까먹음ㅋ).
+
+> 초기값이 0이라서 EMA가 평균을 내기 아니라 **“0에서 서서히 탈출하려고 애쓰는 값”**이 되어버림.
+
+자고로 평균이란, 가중치들의 합이 1이 되어야하는데 `EMA` 에서는 $(1-\beta)(1 + \beta + \beta^2 + \cdots) = 1$ 무한하게 해야만 1이 된다. 애초에 실전 `EMA` 케이스는 가중치 합이 1이되는 평균을 줄 수 없을 뿐더러, 초기값까지 0으로 박아버리면 초반 평균이 매우 bias한 상태가 되어버린다.  
+스텝이 쌓이다면 모를까, 초반에는 bias한 평균이 구해지는데 학습 상황에서 초반스텝이 박살나 버리면 학습이 이상하게 되므로 unbias한 EMA를 이용해 주어야 그나마 안정적인 학습이 가능해짐.
+
+$$
+m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t  \\
+m_t = \beta_1^2(1-\beta_1)g_1 + \beta_1 (1-\beta_1)g_2 + (1-\beta_1) g_3  \\
+m_t = (1 - \beta_1) \sum_{k=0}^{t-1} \beta_1^k g_{t-k}
+$$
+
+그렇다면 여기서 가중치 부분만 때어와서 보자.  
+
+$$
+\text{가중치 합} = (1-\beta_1) (1 + \beta_1 + \beta_1^2 + \dots + \beta_1^{t-1})
+$$
+
+* 등비수열 공식: $1 + \beta_1 + \beta_1^2 + \dots + \beta_1^{t-1} = \frac{1 - \beta_1^t}{1 - \beta_1}$
+
+따라서 (학습 상황에서), $t$ 스텝에서 적용되는 EMA 가중 합은 아래와 같음.
+
+$$
+(1-\beta_1) \cdot \frac{1 - \beta_1^t}{1 - \beta_1} = 1 - \beta_1^t
+$$
+
+* $m_0 = 0, \beta_1 = 0.9$
+* $m_1 = \beta_1 m_{0} + (1 - \beta_1)\, g_1$ 의 가중합: 0.1
+* $m_2 = \beta_1 m_{1} + (1 - \beta_1)\, g_2$ 의 가중합: 0.19
+* $m_3 = \beta_1 m_{2} + (1 - \beta_1)\, g_2$ 의 가중합: 0.65
+
+스텝이 쌓일수록 bias 가중합 $1 - \beta_1^t$이 1에 가까워져 안정적이 되지만, 초반부는 개박살이 나는것을 확인할 수 있음.  
+따라서 unbias 가중합을 적용한 `EMA`를 적용시키기 위해 $m_t, s_t$에다가 한스텝을 주는 것.
+
+$$
+\hat{m}_t = \frac{m_t}{1 - \beta_1^t}  \\
+\hat{s}_t = \frac{s_t}{1 - \beta_2^t}  \\
+w_{t+1} = w_t - \frac{\eta}{\sqrt{\hat{s}_t} + \epsilon}\, \hat{m}_t
+$$
+
+![EMA/ biased vs unbiased (예시)](/images/ai_techs/EMA_example.png)
+요약하면 애초에 `EMA` 실전에서 쓰기에 가중합 1이 안되서 불안정한데, 여기에 초반 모멘텀, 가중치 강도 0으로 주니까 더 심해져 버림. 그래서 unbias 가중치 주려고 $\hat{m}_t, \hat{s}_t$를 쓴다.
+
+## 6. AdamW (2017)
+AdamW는 Adam의 weight decay 구현이 잘못되어 있었다는 문제를 바로잡은 버전.  
+현대 딥러닝(Transformer, Diffusion 등)에서는 Adam 대신 AdamW가 사실상 표준 (근데 VRAM 존나 잡아먹음, 파라미터 x3배).  
+까먹고 있던 weight decay 개념이 등장해서 잠깐 당황했음. 파라미터 업뎃할 때 loss를 줄일 수 있는 방향인 gradient와 더불어 weight가 너무 커지지 않도록 고삐를 잡아주는 weight decay ($L_2$)가 디폴트로 포함된다.  
+
+$$
+g_t = \nabla L(w_t) + \lambda w_t  \\
+m_t = \beta_1 m_{t-1} + (1 - \beta_1)\, g_t  \\
+s_t = \beta_2 s_{t-1} + (1 - \beta_2)\, g_t^2
+$$
+
+여기서 보면 정규화텀이
+* $\hat{m}_t$에도 들어감
+* $t{s}_t$ (RMSProp 역할)에도 들어감
+
+weight decay가 “gradient scaling”의 영향을 받아버리는 문제가 발생함. -> 즉, 정규화 효과가 제대로 안 나온다.  
+해결방법: weight decay 따로 빼서 adam 계산 후 정규화 텀 추가해줌 ㅋ  
+
+$$
+w_t = w_t - \frac{\eta}{\sqrt{s_t} + \epsilon}\, m_t  \\
+w_{t+1} = w_t - \eta \lambda w_t
+$$
+
+기존 파라미터 업데이트방식
+* gradient 업데이트 + weight decay가 한 수식 안에서 섞여서 적용됨
+
+AdamW 업데이트 방식
+* “gradient 기반 업데이트(Adam)”를 먼저 하고, 그 다음에 weight decay(L2)를 적용.
+
+# 최신 기법 (AdamW8bit, Adafactor, Lion, Prodigy)
+
+## AdamW8bit
+AdamW의 상태값(momentum $m_t$, variance $s_t$)을 32-bit(float32)가 아니라 8-bit로 압축해 저장하는 Optimizer  
+
+→ 1/4 VRAM 상태 유지  
+→ 전체 optimizer 메모리 3× → 1.75× 정도로 감소
+
+저장만 8-bit quantization으로 하고 계산 필요할 땐 32-bit으로 다시 바꿔서 하고 반복한다.  
+* 일반 AdamW와 거의 동일한 성능
+* LoRA, QLoRA, DreamBooth, Diffusion finetuning 등에서 표준
+* 델일수록 효과가 큼
+* Full precision AdamW 대비 손실 없는 optimizer
+
+```python
+import bitsandbytes as bnb
+
+optimizer = bnb.optim.AdamW8bit(
+    model.parameters(),
+    lr=1e-4,
+    betas=(0.9, 0.999), # 모멘텀, RMSProp 순서
+    weight_decay=0.01
+)
+```
+
+## Adafactor (T5 학습에 채택됨)
+kohya-ss 햄이 주로 default로 박아두던 (SDXL, SD3 학습 때) 옵티마이저로, RTX 4090에서 모델 fp16으로 SDXL 학습 가능하게 함.    
+Adafactor = “Adam의 2차 모멘텀을 압축한 Optimizer"이다.  
+Adam은 $m_t$와 $s_t$ 두개를 동시에 가지고 있어야하는데, 파라미터 크기가 N이면 optimizer 상태도 2N (또는 3N) 수준이 필요함.
+* 1B 파라미터 모델이면 Adam state만 4~8GB 메모리가 들어가버림 (FLUX가 아마 12B일꺼임)
+
+### 2차 모멘텀을 “행/열 factorization”으로 저장
+Adam의 $s_t$는 가중치(m×n) 전체를 저장.  
+Adafactor는 $s_t \approx r_t \cdot c_t^T$를 연산을 통해 구함.
+* 행 평균 $r_t ∈ (m)$
+* 열 평균 $c_t ∈ (n)$
+
+### 1차 모멘텀($m_t$) 자체를 없앰
+1차 모멘텀 state = 0 메모리, 대신 gradient 자체를 scale해서 momentum-like 효과를 냄.
+
+### Learning rate도 파라미터 크기에 따라 자동 조절
+
+$$
+\text{scale} = \max(\epsilon_2, RMS(w_t))  \\
+\eta_t = \eta \cdot \text{scale}
+$$
+
+큰 모델에서 안정적으로 작동.
+
+### 종합 장/단점.
+
+장점
+* 메모리 사용량이 AdamW 대비 수십~수백 배 줄어듬
+* 성능이 AdamW와 거의 비슷
+* 메모리 = 파라미터 크기의 약 1.5배 수준 (adamW는 거의 3배)
+
+단점
+* AdamW보다 안정성이 살짝 떨어질 때 있음
+* 작은 모델에서는 AdamW가 더 나음
+* 세팅이 많고 잘못 세팅하면 발산 가능 (특히 lr, 경험해봄)
+* 최근에는 LLM 파인튜닝에서는 AdamW8bit가 더 대세
+
+요약
+* pretraining(대규모 학습) → Adafactor
+* finetuning(스몰 배치) → AdamW / AdamW8bit
+
+```python
+from transformers import Adafactor
+import torch
+
+model = MyModel().cuda()
+
+optimizer = Adafactor(
+    model.parameters(),
+    lr=None,              # 이게 핵심! relative_step=True면 lr=None
+    scale_parameter=True, # 파라미터 크기에 따라 자동 스케일, max(eps, RMS(w_t))
+    relative_step=True,   # step에 따라 lr 자동 감쇠(decay) + warmup
+    warmup_init=True      # 초반 warmup 자동 적용
+)
+
+for step, batch in enumerate(dataloader):
+    optimizer.zero_grad()
+
+    outputs = model(batch["inputs"].cuda())
+    loss = loss_fn(outputs, batch["labels"].cuda())
+
+    loss.backward()
+    optimizer.step()      # 이것만 하면 됨 (scheduler 필요 없음)
+```
+
+## Lion Optimizer
+[Lion](https://arxiv.org/pdf/2302.06675) 은 2023년에 나온 새로운 1차 모멘텀 기반 optimizer로, AdamW보다 더 간단하고, 더 빠르고, 메모리도 적게 쓰고, 성능도 더 좋은 최신 Optimizer다.  
+LLM, Diffusion, Vision Transformer 등에서 AdamW를 거의 대체할 수준으로 평가받고 있다고 하는데... 쓰는건 못봄ㅋ;  
+이건...논문을 봐야 이해하겠는데 너무 비현실적이라 잘 안와닿음.
+Adam은 1, 2차 모멘텀을 유지하지만 얘는 2차를 버림 (adafactor와 반대). 그리고 모멘텀을 부호로 바꿔서 그걸로 업데이트함. 
+
+Adam 업데이트 방식
+
+$$
+w_t = w_t - \frac{\eta}{\sqrt{s_t} + \epsilon}\, m_t  \\
+w_{t+1} = w_t - \eta \lambda w_t
+$$
+
+Lion 업데이트 방식
+
+$$
+w_{t+1} = w_t - \eta \cdot \text{sign}(m_{t})  \\
+w_{t+1} = w_t - \eta \lambda w_t 
+$$
+
+$$
+\text{sign}(x) =
+\begin{cases}
++1 & x > 0\\
+0  & x = 0\\
+-1 & x < 0
+\end{cases}
+$$
+
+여기서 중요한 특징:
+* gradient의 크기(magnitude)는 무시하고
+* 방향(sign)만 사용해서 업데이트
+
+학습 방향만 정확하면 굳이 크기까지 정교하게 따라갈 필요 없다 (개씹상남자식 직진ㄷㄷ)  
+
+장점
+* 메모리 효율이 좋음
+* 연산량이 적고 빠름
+* 성능: AdamW와 비슷하거나 더 좋음
+  * ViT, ImageNet, GPT/언어 모델, 일부 diffusion/텍스트-이미지 모델에서 AdamW 대비 동급 혹은 더 나은 성능 보고.
+* 대형 모델·대형 batch에서 특히 강함
+
+단점
+* 상대적으로 새롭고 이론·실무 경험이 적음 (23년식)
+* 하이퍼파라미터 스케일이 AdamW와 다름
+  * AdamW에서 쓰던 lr → Lion에서는 3–10배 줄이기
+  * AdamW에서 쓰던 weight decay → Lion에서는 3–10배 키우기
+* 작은 batch / 매우 noisy 환경에서는 불안정할 수 있음
+* 프레임워크 최적화는 아직 진행 중
+
+```python
+from lion_pytorch import Lion
+optimizer = Lion(
+    model.parameters(),
+    lr=1e-4,          # AdamW 쓰던 lr보다 3~10배 정도 작게 시작 추천
+    betas=(0.9, 0.99),
+    weight_decay=0.02 # AdamW에서 0.01 썼다면 Lion에서는 좀 더 크게
+)
+```
+
+
+![lion](/images/ai_techs/lion_optimizer.png)
+
+2차 모멘텀도 없는데 $\beta_2$ 있는 이유: 저장용/업데이트용 모멘텀 따로 있음.
+
+## Prodigy Optimizer
+이새기 공부하려고 여기까지 돌아왔음.  
+LoRA 기준으로 rank, alpha, 붙이는 부위, 가중치 초기화에 따라 lr이 다 달라짐. 특히 LoRA에 kaming 초기화 해주면 lr이 너무 커져서 기존 모델 능력을 아예 박살 내버림.  
