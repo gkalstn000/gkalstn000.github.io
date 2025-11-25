@@ -19,6 +19,12 @@ author: Haribo
 
 ---
 
+
+
+
+
+
+
 그 전에 굉장히 흥미로운 현상을 하나 발견했다.
 
 ![casting.png](/images/ai_techs/casting.png)
