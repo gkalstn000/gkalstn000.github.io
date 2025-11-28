@@ -344,7 +344,7 @@ def calc_mantissa(abs_x, exponent, normal_mask, MANTISSA_BITS, EXPONENT_BIAS, ge
 **2. 검정 색말고 noise로 채우고 학습하기.**
 얘는 뭐 하는거 시간이 걸릴 뿐이지 큰 어려움은 없긴한데 걸리는 점이, timestep 마다 모델 내부에서 다르게 동작하는 diffusion 모델에 보통 condition image는 `t=0`으로 박아넣고 임베딩을 함. 근데 거기에 노이즈가 섞여있으면 괜찮을라나 그게 좀 걸리는데 눈으로 확인 해봐야할듯.
 
-**3. fp8 회피 기동**
+**3. fp8 회피 기동 (Mask Dilation for Inpainting)**
 ![trick](/images/ai_techs/train_trick.png)
 가운데 Model A 는 다른사람이 오픈소스로 공개한 모델 결과물인데, 로션 주둥이를 보면 살짝 깎여서 더 얇아진 모습을 볼 수 있다. 얘가 학습 condition 이미지 만들 때, 마스크를 따놓고 뭔가 장난질을 쳐서 모델이 생성할 때 원본을 깎아 먹는 대신 테두리 영역을 부드럽게 되도록 한것이 틀림 없다.  
 
